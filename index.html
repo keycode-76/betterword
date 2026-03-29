@@ -51,7 +51,7 @@ body {
    PANEL (fixed left sidebar)
 ══════════════════════════ */
 #panel {
-  width: 220px;
+  width: 240px;
   background: #fff;
   border-right: 1px solid #d0d0d0;
   flex-shrink: 0;
@@ -99,8 +99,8 @@ body {
 .act-btn svg { display: block; }
 
 #panel-inner {
-  width: 220px;
-  padding: 12px 10px 20px;
+  width: 240px;
+  padding: 14px 12px 24px;
   overflow-y: auto;
   flex: 1;
 }
@@ -114,14 +114,194 @@ body {
 }
 .pn-title:first-child { margin-top: 0; }
 
+/* 極簡分區標籤 */
+.pn-sec-label {
+  font-size: 10px; font-weight: 600; color: #bbb;
+  letter-spacing: 0.8px; text-transform: uppercase;
+  margin: 0 0 6px;
+}
+/* 分區分隔線 */
+.pn-divider {
+  height: 1px; background: #f0f0f0;
+  margin: 10px 0 10px;
+}
+
+/* color swatches */
+.pn-color-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.pn-color-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #999;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  width: 28px;
+  flex-shrink: 0;
+}
+.pn-color-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  align-items: center;
+}
+.clr-swatch {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.clr-swatch:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 1;
+}
+.clr-custom {
+  background: conic-gradient(red,yellow,lime,cyan,blue,magenta,red) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+.clr-custom input[type="color"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.clr-custom span { display: none; }
+
+/* bg blocks */
+.bg-block {
+  position: absolute;
+  min-width: 40px;
+  min-height: 20px;
+  cursor: default;
+  z-index: 1;
+  box-sizing: border-box;
+  user-select: none;
+  pointer-events: none;   /* 預設穿透，不干擾文字編輯 */
+}
+/* 色塊編輯模式：色塊浮到文字上方並可互動 */
+body.bg-edit-mode .bg-block {
+  z-index: 10;
+  pointer-events: auto;
+  cursor: move;
+  outline: 1px dashed rgba(0,0,0,0.3);
+}
+body.bg-edit-mode .page-body {
+  pointer-events: none;   /* 編輯色塊時文字區不攔截 */
+}
+.bg-block-handle {
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 14px; height: 14px;
+  cursor: se-resize;
+  background: rgba(0,0,0,0.3);
+  border-radius: 2px 0 0 0;
+  display: none;
+}
+body.bg-edit-mode .bg-block-handle { display: block; }
+.bg-block-del {
+  position: absolute;
+  top: -8px; right: -8px;
+  width: 16px; height: 16px;
+  background: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+  cursor: pointer;
+  display: none;
+  z-index: 11;
+  padding: 0;
+}
+body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
+
+/* 色塊編輯模式切換按鈕 active 狀態 */
+#bg-edit-btn.active { background: #111; color: #fff; border-color: #111; }
+
+/* bg block panel */
+#pn-bg-colors {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  align-items: center;
+}
+/* selected bg block highlight in edit mode */
+.bg-block.bg-selected {
+  outline: 2px solid #0078d4 !important;
+  outline-offset: 1px;
+}
+.bg-clr-swatch {
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.bg-clr-swatch:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+.bg-clr-custom {
+  background: conic-gradient(red,yellow,lime,cyan,blue,magenta,red) !important;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.bg-clr-custom input[type="color"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* doc name input */
+#doc-name-wrap {
+  margin-bottom: 4px;
+}
+#doc-name-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #222;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+#doc-name-input:focus {
+  border-color: #888;
+  background: #fff;
+}
+
 /* row of buttons */
 .pn-row {
-  display: flex; gap: 4px; margin-bottom: 6px; flex-wrap: nowrap;
+  display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: nowrap;
 }
 
 .pn-btn {
   flex: 1;
-  padding: 6px 4px;
+  padding: 7px 4px;
   background: #f5f5f5;
   border: 1px solid #e0e0e0;
   border-radius: 6px;
@@ -138,13 +318,13 @@ body {
 
 /* icon grid 4-col */
 .pn-grid4 {
-  display: grid; grid-template-columns: repeat(4,1fr); gap: 4px; margin-bottom: 6px;
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 5px; margin-bottom: 8px;
 }
 .pn-grid3 {
-  display: grid; grid-template-columns: repeat(3,1fr); gap: 4px; margin-bottom: 6px;
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 5px; margin-bottom: 8px;
 }
 .ic {
-  padding: 6px 0; text-align: center;
+  padding: 7px 0; text-align: center;
   background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 6px;
   cursor: pointer; font-size: 14px; color: #333;
   transition: background 0.1s;
@@ -179,6 +359,7 @@ body {
   border-radius: 2px;
   cursor: se-resize;
   z-index: 11;
+  display: none;
 }
 .float-img-wrap .img-delete-btn {
   position: absolute;
@@ -190,8 +371,79 @@ body {
   text-align: center; cursor: pointer;
   display: none; z-index: 12;
 }
-.float-img-wrap:hover .img-delete-btn { display: block; }
+.float-img-wrap:hover .img-resize-handle,
+.float-img-wrap.selected .img-resize-handle { display: block; }
+.float-img-wrap:hover .img-delete-btn,
+.float-img-wrap.selected .img-delete-btn { display: block; }
 .float-img-wrap.selected { outline: 2px solid #0078d4; }
+
+/* ── 浮動文字框 ── */
+.float-txt-wrap {
+  position: absolute;
+  cursor: move;
+  user-select: none;
+  z-index: 10;
+  min-width: 60px;
+  min-height: 24px;
+}
+.float-txt-wrap .float-txt-body {
+  width: 100%;
+  height: 100%;
+  outline: none;
+  font-family: '標楷體','BiauKai','DFKai-SB',serif;
+  font-size: 14pt;
+  line-height: 24pt;
+  color: #000;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  cursor: text;
+  background: transparent;
+  border: none;
+  padding: 2px 4px;
+  box-sizing: border-box;
+}
+.float-txt-wrap .float-txt-body[data-vertical="true"] {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  line-height: 28pt;
+}
+.float-txt-wrap .float-txt-resize {
+  position: absolute;
+  right: -5px; bottom: -5px;
+  width: 12px; height: 12px;
+  background: #fff;
+  border: 2px solid #555;
+  border-radius: 2px;
+  cursor: se-resize;
+  z-index: 11;
+  display: none;
+}
+.float-txt-wrap .float-txt-del {
+  position: absolute;
+  top: -10px; right: -10px;
+  width: 20px; height: 20px;
+  background: #e00; color: #fff;
+  border: none; border-radius: 50%;
+  font-size: 12px; line-height: 20px;
+  text-align: center; cursor: pointer;
+  display: none; z-index: 12;
+}
+.float-txt-wrap:hover .float-txt-resize,
+.float-txt-wrap.selected .float-txt-resize { display: block; }
+.float-txt-wrap:hover .float-txt-del,
+.float-txt-wrap.selected .float-txt-del { display: block; }
+.float-txt-wrap.selected { outline: 2px solid #e67e00; }
+/* 列印時隱藏控制項，確保文字正確顯示 */
+@media print {
+  .float-txt-wrap .float-txt-resize,
+  .float-txt-wrap .float-txt-del { display: none !important; }
+  .float-txt-wrap.selected { outline: none !important; }
+  .float-txt-wrap { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .float-txt-wrap .float-txt-body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* 超連結在 PDF 中保留顏色與底線 */
+  a { color: #0563c1 !important; text-decoration: underline !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
 
 /* ── 表格（從 DOCX 載入） ── */
 .page-body table {
@@ -204,7 +456,6 @@ body {
 }
 .page-body table td,
 .page-body table th {
-  border: 1px solid #000;
   padding: 4px 8px;
   vertical-align: top;
   word-break: break-all;
@@ -280,6 +531,8 @@ body {
 }
 #zoom-fit:hover { background: #e4e4e4; color: #111; }
 
+#float-move-btn.active { background: #e67e00 !important; color: #fff !important; border-color: #e67e00 !important; }
+
 #zoom-wrapper { transform-origin: top center; display: inline-block; min-width: 100%; }
 
 /* ══ A4 PAGE ══ */
@@ -308,6 +561,7 @@ body {
 
 .page-body {
   position: relative;
+  z-index: 2;
   padding: 96px 120px 80px 120px;
   font-family: '標楷體','BiauKai','DFKai-SB',serif;
   font-size: 14pt; line-height: 24pt; color: #000;
@@ -364,6 +618,14 @@ body {
   .page-guide { display:none!important; }
   .page-body { padding-top:25.4mm!important; padding-bottom:25.4mm!important; padding-left:31.7mm!important; padding-right:31.7mm!important; min-height:0!important; }
   .page-footer { bottom:7mm!important; }
+  /* 列印時色塊正常顯示，隱藏編輯控制項 */
+  .bg-block { pointer-events:none!important; outline:none!important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .bg-block-handle, .bg-block-del { display:none!important; }
+  /* 列印時圖片正常顯示，隱藏控制項 */
+  .float-img-wrap { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .float-img-wrap .img-resize-handle,
+  .float-img-wrap .img-delete-btn { display:none!important; }
+  .float-img-wrap.selected { outline:none!important; }
 }
 </style>
 </head>
@@ -383,9 +645,9 @@ body {
       <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 3v9m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 14h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       PDF
     </button>
-    <button class="act-btn" onclick="exportDOCX()" title="匯出 DOCX">
-      <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="3" y="1" width="12" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/><text x="5.5" y="13" font-size="6" fill="currentColor" font-family="sans-serif" font-weight="bold">W</text></svg>
-      DOCX
+    <button class="act-btn" onclick="saveHTML()" title="下載 HTML">
+      <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 3v9m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 15h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 4h4l1 1h4a1 1 0 011 1v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      HTML
     </button>
     <label class="act-btn" title="插入圖片" style="cursor:pointer;">
       <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="12" rx="1.5" stroke="currentColor" stroke-width="1.5"/><circle cx="6.5" cy="7.5" r="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M2 13l4-4 3 3 2-2 5 5" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
@@ -405,67 +667,171 @@ body {
 
     <!-- TEXT panel (default) -->
     <div id="pn-text">
-      <div class="pn-title">樣式</div>
+
+      <!-- 字型 + 大小 -->
+      <div class="pn-sec-label">字型 · 大小</div>
       <div class="pn-row">
-        <button class="pn-btn" style="font-weight:700;font-size:14px;" onclick="applyStyle('h1')" title="大標 18pt">H1</button>
-        <button class="pn-btn" style="font-weight:700;font-size:12px;" onclick="applyStyle('h2')" title="小標 16pt">H2</button>
-        <button class="pn-btn" onclick="applyStyle('p')" title="內文 14pt">¶</button>
+        <button class="pn-btn font-kai" onmousedown="event.preventDefault()" onclick="_restoreSel();applyKaiFontToSelection()" title="標楷體">楷</button>
+        <button class="pn-btn font-hei" onmousedown="event.preventDefault()" onclick="_restoreSel();applyFontToSelection('Arial,sans-serif','黑體')" title="黑體">黑</button>
+        <button class="pn-btn font-min" onmousedown="event.preventDefault()" onclick="_restoreSel();applyFontToSelection('Times New Roman,serif','明體')" title="明體">明</button>
+        <button class="pn-btn" style="font-size:13px;" onmousedown="event.preventDefault()" onclick="_restoreSel();applyFontSize('18pt')" title="18pt">18</button>
+        <button class="pn-btn" style="font-size:12px;" onmousedown="event.preventDefault()" onclick="_restoreSel();applyFontSize('16pt')" title="16pt">16</button>
+        <button class="pn-btn" style="font-size:11px;" onmousedown="event.preventDefault()" onclick="_restoreSel();applyFontSize('14pt')" title="14pt">14</button>
+        <input id="font-size-custom" type="number" min="6" max="144" placeholder="pt"
+          style="width:40px;padding:3px 4px;border:1px solid #e0e0e0;border-radius:6px;font-size:11px;text-align:center;background:#f5f5f5;"
+          title="自訂字體大小 (pt)"
+          onfocus="_saveSel()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();var v=this.value;if(v){_restoreSel();applyFontSize(v+'pt');}}"
+          onblur="if(this.value){_restoreSel();applyFontSize(this.value+'pt');}">
       </div>
 
-      <div class="pn-title">字型</div>
+      <div class="pn-divider"></div>
+
+      <!-- 格式 + 對齊 -->
+      <div class="pn-sec-label">格式 · 對齊</div>
       <div class="pn-row">
-        <button class="pn-btn font-kai" onclick="applyKaiFontToSelection()" title="標楷體">楷</button>
-        <button class="pn-btn font-hei" onclick="applyFontToSelection('Arial,sans-serif','黑體')" title="黑體">黑</button>
-        <button class="pn-btn font-min" onclick="applyFontToSelection('Times New Roman,serif','明體')" title="明體">明</button>
-      </div>
-
-      <div class="pn-title">格式</div>
-      <div class="pn-grid4">
-        <button class="ic" onclick="document.execCommand('bold')" title="粗體"><b style="font-size:13px;">B</b></button>
-        <button class="ic" onclick="document.execCommand('italic')" title="斜體"><i style="font-size:13px;">I</i></button>
-        <button class="ic" onclick="document.execCommand('underline')" title="底線"><u style="font-size:13px;">U</u></button>
-        <button class="ic" onclick="document.execCommand('strikeThrough')" title="刪除線"><s style="font-size:12px;">S</s></button>
-      </div>
-
-      <div class="pn-title">對齊</div>
-      <div class="pn-grid4">
-        <button class="ic" onclick="document.execCommand('justifyLeft')" title="靠左">
+        <button class="ic" onmousedown="event.preventDefault()" onclick="_restoreSel();document.execCommand('bold')" title="粗體"><b style="font-size:13px;">B</b></button>
+        <button class="ic" onmousedown="event.preventDefault()" onclick="_restoreSel();document.execCommand('italic')" title="斜體"><i style="font-size:13px;">I</i></button>
+        <button class="ic" onmousedown="event.preventDefault()" onclick="_restoreSel();document.execCommand('underline')" title="底線"><u style="font-size:13px;">U</u></button>
+        <button class="ic" onmousedown="event.preventDefault()" onclick="_restoreSel();document.execCommand('strikeThrough')" title="刪除線"><s style="font-size:12px;">S</s></button>
+        <button class="ic" onmousedown="event.preventDefault()" onclick="_restoreSel();document.execCommand('justifyLeft')" title="靠左">
           <svg width="14" height="12"><rect x="0" y="0" width="14" height="2" fill="currentColor"/><rect x="0" y="5" width="9" height="2" fill="currentColor"/><rect x="0" y="10" width="14" height="2" fill="currentColor"/></svg>
         </button>
-        <button class="ic" onclick="document.execCommand('justifyCenter')" title="置中">
+        <button class="ic" onmousedown="event.preventDefault()" onclick="_restoreSel();document.execCommand('justifyCenter')" title="置中">
           <svg width="14" height="12"><rect x="0" y="0" width="14" height="2" fill="currentColor"/><rect x="2.5" y="5" width="9" height="2" fill="currentColor"/><rect x="0" y="10" width="14" height="2" fill="currentColor"/></svg>
         </button>
-        <button class="ic" onclick="document.execCommand('justifyRight')" title="靠右">
+        <button class="ic" onmousedown="event.preventDefault()" onclick="_restoreSel();document.execCommand('justifyRight')" title="靠右">
           <svg width="14" height="12"><rect x="0" y="0" width="14" height="2" fill="currentColor"/><rect x="5" y="5" width="9" height="2" fill="currentColor"/><rect x="0" y="10" width="14" height="2" fill="currentColor"/></svg>
         </button>
-        <button class="ic" onclick="document.execCommand('justifyFull')" title="兩端">
+        <button class="ic" onmousedown="event.preventDefault()" onclick="_restoreSel();document.execCommand('justifyFull')" title="兩端">
           <svg width="14" height="12"><rect x="0" y="0" width="14" height="2" fill="currentColor"/><rect x="0" y="5" width="14" height="2" fill="currentColor"/><rect x="0" y="10" width="14" height="2" fill="currentColor"/></svg>
         </button>
       </div>
 
-      <div class="pn-title">插入標點</div>
+      <div class="pn-divider"></div>
+
+      <!-- 文字顏色 -->
+      <div class="pn-sec-label">文字顏色</div>
+      <div class="pn-color-group">
+        <div class="pn-color-row" id="text-color-row" style="flex:1;">
+          <button class="clr-swatch clr-custom" title="自訂顏色" style="order:99;">
+            <input type="color" id="color-custom" value="#000000" oninput="applyColor(this.value)" onchange="onTextColorCustom(this.value)" />
+          </button>
+        </div>
+      </div>
+
+      <div class="pn-divider"></div>
+
+      <!-- 邊框 + 線條 -->
+      <div class="pn-sec-label">邊框 · 線條</div>
       <div class="pn-row">
-        <button class="pn-btn" style="font-size:16px;" onclick="insertText('、')" title="頓號">、</button>
-        <button class="pn-btn" style="font-size:16px;" onclick="insertText('•')" title="圓點">•</button>
+        <button class="ic" onclick="setBgBorder(0)" title="無邊框" style="flex:1;font-size:11px;color:#aaa;">✕</button>
+        <button class="ic" onclick="setBgBorder(1)" title="細邊框" style="flex:1;"><svg width="14" height="14"><rect x="1" y="1" width="12" height="12" fill="none" stroke="#000" stroke-width="1"/></svg></button>
+        <button class="ic" onclick="setBgBorder(2)" title="中邊框" style="flex:1;"><svg width="14" height="14"><rect x="1" y="1" width="12" height="12" fill="none" stroke="#000" stroke-width="2"/></svg></button>
+        <button class="ic" onclick="addLineBlock('h',1)" title="細橫線" style="flex:1;"><svg width="14" height="14"><line x1="0" y1="7" x2="14" y2="7" stroke="#000" stroke-width="1"/></svg></button>
+        <button class="ic" onclick="addLineBlock('h',2)" title="中橫線" style="flex:1;"><svg width="14" height="14"><line x1="0" y1="7" x2="14" y2="7" stroke="#000" stroke-width="2"/></svg></button>
+        <button class="ic" onclick="addLineBlock('v',1)" title="細直線" style="flex:1;"><svg width="14" height="14"><line x1="7" y1="0" x2="7" y2="14" stroke="#000" stroke-width="1"/></svg></button>
+        <button class="ic" onclick="addLineBlock('v',2)" title="中直線" style="flex:1;"><svg width="14" height="14"><line x1="7" y1="0" x2="7" y2="14" stroke="#000" stroke-width="2"/></svg></button>
+      </div>
+
+      <div class="pn-divider"></div>
+
+      <!-- 文字塊 -->
+      <div class="pn-sec-label">文字塊</div>
+      <div class="pn-row">
+        <button class="pn-btn dark" onclick="insertFloatText(false)" style="flex:1;">Ａ 橫書</button>
+        <button class="pn-btn dark" onclick="insertFloatText(true)"  style="flex:1;">Ａ 直書</button>
+        <button class="pn-btn" id="float-move-btn" onclick="toggleFloatMoveMode()" title="切換文字塊移動模式" style="flex-shrink:0;padding:0 8px;font-size:14px;">✥</button>
+      </div>
+      <div class="pn-row">
+        <button class="pn-btn" onmousedown="event.preventDefault()" onclick="duplicateFloatText()" style="flex:1;" title="複製目前選取的文字塊">⧉ 複製文字塊</button>
+      </div>
+
+      <div class="pn-divider"></div>
+
+      <!-- 字距 -->
+      <div class="pn-sec-label">字距</div>
+      <div class="pn-row" style="align-items:center;">
+        <button class="ic" onmousedown="event.preventDefault()" onclick="adjustLetterSpacing(-0.05)" title="縮小字距" style="font-size:14px;flex-shrink:0;padding:6px 8px;">−</button>
+        <input id="letter-spacing-val" type="number" value="0" step="0.05" min="-1" max="5"
+          style="flex:1;min-width:0;padding:6px 4px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;text-align:center;background:#f5f5f5;"
+          oninput="setLetterSpacing(parseFloat(this.value)||0)" title="字距 (em)">
+        <span style="font-size:10px;color:#bbb;flex-shrink:0;padding:0 2px;">em</span>
+        <button class="ic" onmousedown="event.preventDefault()" onclick="adjustLetterSpacing(0.05)" title="增大字距" style="font-size:14px;flex-shrink:0;padding:6px 8px;">＋</button>
+      </div>
+
+      <div class="pn-divider"></div>
+
+      <!-- 標點 + 連結 -->
+      <div class="pn-sec-label">插入</div>
+      <div class="pn-row">
+        <button class="pn-btn" style="font-size:15px;" onclick="insertText('、')" title="頓號">、</button>
+        <button class="pn-btn" style="font-size:15px;" onclick="insertText('•')" title="圓點">•</button>
         <button class="pn-btn" onclick="insertText('（')" title="左括">（</button>
         <button class="pn-btn" onclick="insertText('）')" title="右括">）</button>
         <button class="pn-btn" onclick="insertText('…')" title="省略">…</button>
       </div>
+      <div class="pn-row" style="gap:5px;">
+        <input id="link-url-input" type="url" placeholder="https://…"
+          style="flex:1;min-width:0;padding:3px 5px;border:1px solid #e0e0e0;border-radius:5px;font-size:11px;background:#f5f5f5;"
+          onkeydown="if(event.key==='Enter'){insertLink();}">
+        <button class="pn-btn dark" onmousedown="event.preventDefault()" onclick="insertLink()" style="flex-shrink:0;padding:0 7px;font-size:13px;" title="插入超連結">🔗</button>
+      </div>
+
+      <div class="pn-divider"></div>
+
+      <!-- 背景色塊（最下方） -->
+      <div class="pn-sec-label">背景色塊</div>
+      <div class="pn-color-group">
+        <div id="pn-bg-colors" class="pn-color-row" style="flex:1;">
+          <button class="bg-clr-swatch bg-clr-custom" title="自訂背景色" style="order:99;">
+            <input type="color" id="bg-color-custom" value="#4a86e8" oninput="onBgColorPreview(this.value)" onchange="onBgColorCustom(this.value)" />
+          </button>
+        </div>
+        <button class="pn-btn" id="bg-edit-btn" onclick="toggleBgEditMode()" title="切換色塊編輯模式" style="padding:0 6px;flex-shrink:0;font-size:11px;">✎</button>
+      </div>
+
     </div>
 
     <!-- PAGE panel -->
     <div id="pn-page" style="display:none;">
-      <div class="pn-title">頁面操作</div>
-      <div class="pn-row">
-        <button class="pn-btn dark" onclick="addPage()">＋ 新增頁面</button>
-      </div>
-      <div class="pn-row">
-        <button class="pn-btn" id="guide-btn" onclick="toggleGuides()">⊡ 參考線</button>
+      <div class="pn-title">命名</div>
+      <div id="doc-name-wrap">
+        <input id="doc-name-input" type="text" placeholder="輸入文件名稱…" maxlength="80"
+          oninput="updateDocName(this.value)" />
       </div>
       <div class="pn-sep"></div>
-      <div class="pn-title">除錯</div>
+      <div class="pn-title">頁面操作</div>
       <div class="pn-row">
-        <button class="pn-btn" onclick="debugPageHTML()" style="font-size:10px;">印出 HTML 結構</button>
+        <button class="pn-btn dark" onclick="addPage()" style="flex:1;">＋ 末尾</button>
+        <button class="pn-btn" id="guide-btn" onclick="toggleGuides()" style="flex:1;">⊡ 參考線</button>
+      </div>
+      <div class="pn-sep"></div>
+      <div class="pn-title">插入 / 刪除頁面</div>
+      <!-- 插入與刪除同一橫排 -->
+      <div class="pn-row" style="align-items:center;gap:4px;flex-wrap:nowrap;">
+        <span style="font-size:11px;color:#555;white-space:nowrap;">第</span>
+        <input id="insert-page-num" type="number" min="0" value="1"
+          style="width:38px;padding:2px 4px;border:1px solid #ccc;border-radius:4px;font-size:12px;text-align:center;">
+        <span style="font-size:11px;color:#555;white-space:nowrap;">頁後</span>
+        <button class="pn-btn dark" onclick="insertPageAt()" style="flex:1;padding:4px 0;font-size:11px;">＋插入</button>
+      </div>
+      <div class="pn-row" style="align-items:center;gap:4px;flex-wrap:nowrap;">
+        <span style="font-size:11px;color:#555;white-space:nowrap;">刪第</span>
+        <input id="delete-page-num" type="number" min="1" value="1"
+          style="width:38px;padding:2px 4px;border:1px solid #ccc;border-radius:4px;font-size:12px;text-align:center;">
+        <span style="font-size:11px;color:#555;white-space:nowrap;">頁</span>
+        <button class="pn-btn" onclick="deletePageAt()" style="flex:1;padding:4px 0;font-size:11px;border-color:#e00;color:#e00;">✕刪除</button>
+      </div>
+      <div class="pn-sep"></div>
+      <div class="pn-title">範本</div>
+      <div class="pn-row">
+        <button class="pn-btn" onclick="insertTocPage()" style="width:100%;">📋 插入目錄頁</button>
+      </div>
+      <div class="pn-sep"></div>
+      <div class="pn-title">匯出</div>
+      <div class="pn-row">
+        <button class="pn-btn dark" onclick="exportDOCX()" style="width:100%;">⬇ 下載 DOCX</button>
       </div>
     </div>
 
@@ -592,7 +958,654 @@ function fitPage() {
   setZoom(Math.max(30, Math.min(150, Math.floor((sw / (794+80)) * 100))));
 }
 
+/* ── Tab 縮排處理 ── */
+function _handleTab(e) {
+  var sel = window.getSelection();
+  if (!sel || !sel.rangeCount) {
+    /* 無選取，插入全形空格 */
+    document.execCommand('insertText', false, '\u3000\u3000');
+    return;
+  }
+
+  var range = sel.getRangeAt(0);
+
+  if (sel.isCollapsed) {
+    /* 游標無選取，插入全形空格 */
+    document.execCommand('insertText', false, '\u3000\u3000');
+    return;
+  }
+
+  /* 有選取：找出選取範圍涵蓋的所有 block 元素，在每個行首插入全形空格 */
+  var BLOCK_TAGS = { P:1, H1:1, H2:1, H3:1, H4:1, H5:1, H6:1, LI:1, DIV:1, TD:1, TH:1 };
+
+  /* 找出選取範圍的共同祖先 */
+  var container = range.commonAncestorContainer;
+  if (container.nodeType === Node.TEXT_NODE) container = container.parentNode;
+
+  /* 收集所有在選取範圍內的 block 節點 */
+  var blocks = [];
+  function collectBlocks(node) {
+    if (node.nodeType === Node.ELEMENT_NODE && BLOCK_TAGS[node.tagName]) {
+      /* 檢查此節點是否與選取範圍有交集 */
+      var nr = document.createRange();
+      nr.selectNodeContents(node);
+      if (range.compareBoundaryPoints(Range.END_TO_START, nr) < 0 &&
+          range.compareBoundaryPoints(Range.START_TO_END, nr) > 0) {
+        blocks.push(node);
+        return; /* 不再往下找子 block */
+      }
+    }
+    node.childNodes.forEach(collectBlocks);
+  }
+
+  /* 從 body 層往下找 */
+  var body = container;
+  while (body && !body.classList.contains('page-body')) body = body.parentNode;
+  if (body) collectBlocks(body);
+
+  if (blocks.length === 0) {
+    /* fallback：直接插入 */
+    document.execCommand('insertText', false, '\u3000\u3000');
+    return;
+  }
+
+  /* 在每個 block 的第一個文字節點前插入全形空格 */
+  blocks.forEach(function(block) {
+    var firstText = null;
+    function findFirst(n) {
+      if (firstText) return;
+      if (n.nodeType === Node.TEXT_NODE) { firstText = n; return; }
+      n.childNodes.forEach(findFirst);
+    }
+    findFirst(block);
+    if (firstText) {
+      firstText.textContent = '\u3000\u3000' + firstText.textContent;
+    } else {
+      /* 空段落 */
+      block.insertBefore(document.createTextNode('\u3000\u3000'), block.firstChild);
+    }
+  });
+}
+
+/* ── 儲存 / 還原選取範圍（讓 Panel 輸入框不破壞選取） ── */
+var _savedRanges = [];
+function _saveSel() {
+  var sel = window.getSelection();
+  _savedRanges = [];
+  if (sel && sel.rangeCount) {
+    for (var i = 0; i < sel.rangeCount; i++) {
+      _savedRanges.push(sel.getRangeAt(i).cloneRange());
+    }
+  }
+}
+
+// 自動追蹤選取（合併字型/字號顯示）
+document.addEventListener('selectionchange', function() {
+  try {
+    var sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    var node = sel.getRangeAt(0).startContainer;
+    if (node.nodeType === 3) node = node.parentElement;
+
+    // 確認是否在 page-body 內
+    var inBody = false;
+    var p = node;
+    while (p) {
+      if (p.classList && p.classList.contains('page-body')) { inBody = true; break; }
+      p = p.parentElement;
+    }
+
+    // 確認是否在文字塊內
+    var inFloatTxt = false;
+    var q = node;
+    while (q) {
+      if (q.classList && q.classList.contains('float-txt-body')) { inFloatTxt = true; break; }
+      q = q.parentElement;
+    }
+
+    if (inBody || inFloatTxt) {
+      // 儲存選取範圍
+      _saveSel();
+      // 字體大小顯示
+      var fsPx = parseFloat(window.getComputedStyle(node).fontSize);
+      var fsPt = fsPx ? Math.round(fsPx / 1.3333) : '';
+      var inp = document.getElementById('font-size-custom');
+      if (inp && document.activeElement !== inp) inp.value = fsPt || '';
+    }
+  } catch(e) {}
+});
+function _restoreSel() {
+  if (!_savedRanges.length) return;
+  // 先把 focus 還給選取範圍所在的 contenteditable，再還原選取
+  var range = _savedRanges[0];
+  var node = range.commonAncestorContainer;
+  if (node.nodeType === 3) node = node.parentElement;
+  var editable = node;
+  while (editable && editable.contentEditable !== 'true') editable = editable.parentElement;
+  if (editable) editable.focus();
+  var sel = window.getSelection();
+  sel.removeAllRanges();
+  _savedRanges.forEach(function(r) { sel.addRange(r); });
+}
+
+/* ── Font Size ── */
+function _clearFontSize(el) {
+  // 遞迴清除所有子節點的 font-size，確保新大小不被內層覆蓋
+  el.querySelectorAll('*').forEach(function(node) {
+    if (node.style && node.style.fontSize) node.style.fontSize = '';
+  });
+}
+
+function applyFontSize(size) {
+  var sel = window.getSelection();
+  if (!sel || sel.isCollapsed) {
+    // 無選取時，套用到游標所在段落
+    var el = sel && sel.rangeCount ? sel.getRangeAt(0).commonAncestorContainer : null;
+    if (el && el.nodeType === 3) el = el.parentElement;
+    while (el && ['P','H1','H2','H3','DIV','LI'].indexOf(el.tagName) === -1) el = el.parentElement;
+    if (el) {
+      el.style.fontSize = size;
+      _clearFontSize(el);
+    }
+    return;
+  }
+  // 有選取時，用 span 包住選取範圍，並清除內層殘留的 font-size
+  document.execCommand('fontName', false, '_sz_');
+  document.querySelectorAll('font[face="_sz_"]').forEach(function(f) {
+    var s = document.createElement('span');
+    s.style.fontSize = size;
+    s.innerHTML = f.innerHTML;
+    _clearFontSize(s);
+    f.parentNode.replaceChild(s, f);
+  });
+}
+
+/* ── Background Blocks ── */
+var _bgBlockId = 0;
+var _bgEditMode = false;
+var _lastSelectedPage = null;
+
+function toggleBgEditMode() {
+  _bgEditMode = !_bgEditMode;
+  document.body.classList.toggle('bg-edit-mode', _bgEditMode);
+  var btn = document.getElementById('bg-edit-btn');
+  if (btn) btn.classList.toggle('active', _bgEditMode);
+  if (!_bgEditMode) {
+    document.querySelectorAll('.bg-block').forEach(function(b) { b.classList.remove('bg-selected'); });
+    _selectedBgBlock = null;
+  }
+  toast(_bgEditMode ? '色塊編輯模式：點色塊選中，再點色板改色' : '已切換回文字編輯');
+}
+
+function addBgBlock(color, opts) {
+  // opts: { id, x, y, w, h, pageIndex } for restore
+  var page;
+  if (opts && opts.pageIndex != null) {
+    var allPages = document.querySelectorAll('.a4-page');
+    page = allPages[opts.pageIndex] || allPages[allPages.length - 1];
+  } else {
+    page = _lastSelectedPage || document.querySelector('.a4-page.selected') || document.querySelector('.a4-page');
+  }
+  if (!page) { toast('請先新增頁面'); return; }
+  var id = (opts && opts.id) ? opts.id : ('bg' + (++_bgBlockId));
+  var x  = (opts && opts.x  != null) ? opts.x  : 20;
+  var y  = (opts && opts.y  != null) ? opts.y  : 20;
+  var w  = (opts && opts.w  != null) ? opts.w  : 120;
+  var h  = (opts && opts.h  != null) ? opts.h  : 60;
+
+  var borderPx = (opts && opts.border) ? parseInt(opts.border) : 0;
+  var borderCSS = borderPx > 0 ? 'border:'+borderPx+'px solid #000;' : '';
+
+  var block = document.createElement('div');
+  block.className = 'bg-block';
+  block.dataset.bgid   = id;
+  block.dataset.color  = color;
+  block.dataset.border = String(borderPx);
+  block.style.cssText  = 'left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;background:'+color+';'+borderCSS;
+
+  // delete btn
+  var del = document.createElement('button');
+  del.className = 'bg-block-del';
+  del.textContent = '✕';
+  del.onclick = function(e) { e.stopPropagation(); block.remove(); };
+  block.appendChild(del);
+
+  // resize handle
+  var handle = document.createElement('div');
+  handle.className = 'bg-block-handle';
+  block.appendChild(handle);
+
+  // drag move + select in edit mode
+  block.addEventListener('mousedown', function(e) {
+    if (e.target === handle || e.target === del) return;
+    e.preventDefault();
+    // 選中此色塊
+    if (_bgEditMode) {
+      document.querySelectorAll('.bg-block').forEach(function(b) { b.classList.remove('bg-selected'); });
+      block.classList.add('bg-selected');
+      _selectedBgBlock = block;
+    }
+    var startX = e.clientX - block.offsetLeft;
+    var startY = e.clientY - block.offsetTop;
+    function onMove(ev) {
+      block.style.left = (ev.clientX - startX) + 'px';
+      block.style.top  = (ev.clientY - startY) + 'px';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // drag resize
+  handle.addEventListener('mousedown', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    var startX = e.clientX, startY = e.clientY;
+    var startW = block.offsetWidth, startH = block.offsetHeight;
+    function onMove(ev) {
+      block.style.width  = Math.max(40, startW + ev.clientX - startX) + 'px';
+      block.style.height = Math.max(20, startH + ev.clientY - startY) + 'px';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  page.appendChild(block);
+}
+
+function collectBgBlocks() {
+  var blocks = [];
+  var allPages = document.querySelectorAll('.a4-page');
+  document.querySelectorAll('.bg-block').forEach(function(b) {
+    var pageIndex = 0;
+    allPages.forEach(function(p, i) { if (p.contains(b)) pageIndex = i; });
+    var entry = {
+      id:        b.dataset.bgid,
+      color:     b.dataset.color,
+      x:         parseInt(b.style.left)   || 0,
+      y:         parseInt(b.style.top)    || 0,
+      w:         parseInt(b.style.width)  || 120,
+      h:         parseInt(b.style.height) || 60,
+      pageIndex: pageIndex,
+      border:    b.dataset.border || '0'
+    };
+    if (b.dataset.type === 'line') {
+      entry.type = 'line';
+      entry.dir  = b.dataset.dir;
+      entry.lw   = parseInt(b.dataset.lw) || 1;
+    }
+    blocks.push(entry);
+  });
+  return blocks;
+}
+
+function restoreBgBlocks(blocks) {
+  if (!blocks || !blocks.length) return;
+  blocks.forEach(function(b) {
+    if (b.type === 'line') addLineBlock(b.dir, b.lw, b);
+    else addBgBlock(b.color, b);
+  });
+}
+
+/* ── Border on selected bg block ── */
+function setBgBorder(px) {
+  if (!_selectedBgBlock) { toast('請先在編輯模式下選取色塊'); return; }
+  if (px === 0) {
+    _selectedBgBlock.style.border = 'none';
+    _selectedBgBlock.dataset.border = '0';
+  } else {
+    _selectedBgBlock.style.border = px + 'px solid #000';
+    _selectedBgBlock.dataset.border = String(px);
+  }
+}
+
+/* ── Line block ── */
+function addLineBlock(dir, lw, opts) {
+  var page;
+  if (opts && opts.pageIndex != null) {
+    var allPages = document.querySelectorAll('.a4-page');
+    page = allPages[opts.pageIndex] || allPages[allPages.length - 1];
+  } else {
+    page = _lastSelectedPage || document.querySelector('.a4-page.selected') || document.querySelector('.a4-page');
+  }
+  if (!page) { toast('請先新增頁面'); return; }
+
+  var id = (opts && opts.id) ? opts.id : ('bg' + (++_bgBlockId));
+  var isH = (dir === 'h');
+  var x = (opts && opts.x != null) ? opts.x : 20;
+  var y = (opts && opts.y != null) ? opts.y : 60;
+  var w = (opts && opts.w != null) ? opts.w : (isH ? 200 : lw);
+  var h = (opts && opts.h != null) ? opts.h : (isH ? lw : 200);
+
+  var block = document.createElement('div');
+  block.className = 'bg-block';
+  block.dataset.bgid  = id;
+  block.dataset.color = 'transparent';
+  block.dataset.type  = 'line';
+  block.dataset.dir   = dir;
+  block.dataset.lw    = String(lw);
+  block.style.cssText =
+    'left:'+x+'px;top:'+y+'px;' +
+    'width:'+w+'px;height:'+h+'px;' +
+    'background:transparent;' +
+    (isH
+      ? 'border-top:'+lw+'px solid #000;min-height:'+lw+'px;'
+      : 'border-left:'+lw+'px solid #000;min-width:'+lw+'px;');
+
+  var del = document.createElement('button');
+  del.className = 'bg-block-del';
+  del.textContent = '✕';
+  del.onclick = function(e) { e.stopPropagation(); block.remove(); };
+  block.appendChild(del);
+
+  var handle = document.createElement('div');
+  handle.className = 'bg-block-handle';
+  block.appendChild(handle);
+
+  block.addEventListener('mousedown', function(e) {
+    if (e.target === handle || e.target === del) return;
+    e.preventDefault();
+    if (_bgEditMode) {
+      document.querySelectorAll('.bg-block').forEach(function(b) { b.classList.remove('bg-selected'); });
+      block.classList.add('bg-selected');
+      _selectedBgBlock = block;
+    }
+    var startX = e.clientX - block.offsetLeft;
+    var startY = e.clientY - block.offsetTop;
+    function onMove(ev) {
+      block.style.left = (ev.clientX - startX) + 'px';
+      block.style.top  = (ev.clientY - startY) + 'px';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  handle.addEventListener('mousedown', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    var startX = e.clientX, startY = e.clientY;
+    var startW = block.offsetWidth, startH = block.offsetHeight;
+    function onMove(ev) {
+      var nw = Math.max(lw, startW + ev.clientX - startX);
+      var nh = Math.max(lw, startH + ev.clientY - startY);
+      block.style.width  = nw + 'px';
+      block.style.height = nh + 'px';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  page.appendChild(block);
+}
+
+/* ── Dynamic Color Palettes ── */
+var _textColors = ['#000000','#434343','#ff4500'];
+var _bgColors   = ['#000000','#434343','#ff4500'];
+var _selectedBgBlock = null;
+
+function _renderTextColors() {
+  var row = document.getElementById('text-color-row');
+  if (!row) return;
+  // remove old dynamic swatches
+  row.querySelectorAll('.clr-swatch:not(.clr-custom)').forEach(function(b) { b.remove(); });
+  _textColors.forEach(function(c, i) {
+    var btn = document.createElement('button');
+    btn.className = 'clr-swatch';
+    btn.title = c;
+    btn.style.background = c;
+    btn.style.order = i;
+    if (c === '#ffffff') btn.style.border = '1px solid #ccc';
+    btn.addEventListener('mousedown', function(e) { e.preventDefault(); });
+    btn.onclick = function() { _restoreSel(); applyColor(c); };
+    row.insertBefore(btn, row.querySelector('.clr-custom'));
+  });
+}
+
+function _renderBgColors() {
+  var row = document.getElementById('pn-bg-colors');
+  if (!row) return;
+  row.querySelectorAll('.bg-clr-swatch:not(.bg-clr-custom)').forEach(function(b) { b.remove(); });
+  _bgColors.forEach(function(c, i) {
+    var btn = document.createElement('button');
+    btn.className = 'bg-clr-swatch';
+    btn.title = c;
+    btn.style.background = c;
+    btn.style.order = i;
+    if (c === '#ffffff') btn.style.border = '1px solid #ccc';
+    btn.onclick = function() {
+      if (_bgEditMode && _selectedBgBlock) {
+        // 改變已選中色塊的顏色
+        _selectedBgBlock.style.background = c;
+        _selectedBgBlock.dataset.color = c;
+      } else {
+        addBgBlock(c);
+      }
+    };
+    row.insertBefore(btn, row.querySelector('.bg-clr-custom'));
+  });
+}
+
+function _pushTextColor(hex) {
+  // 推入最右，擠掉最左
+  _textColors.push(hex);
+  if (_textColors.length > 4) _textColors.shift();
+  _renderTextColors();
+}
+
+function _pushBgColor(hex) {
+  _bgColors.push(hex);
+  if (_bgColors.length > 4) _bgColors.shift();
+  _renderBgColors();
+}
+
+function onTextColorCustom(hex) {
+  // 關閉選色器時才推入陣列
+  applyColor(hex);
+  _pushTextColor(hex);
+}
+
+function onBgColorPreview(hex) {
+  // 拖動選色器時即時預覽（不推入陣列）
+  if (_bgEditMode && _selectedBgBlock) {
+    _selectedBgBlock.style.background = hex;
+    _selectedBgBlock.dataset.color = hex;
+  }
+}
+
+function onBgColorCustom(hex) {
+  // 關閉選色器時才推入陣列並新增色塊
+  if (_bgEditMode && _selectedBgBlock) {
+    _selectedBgBlock.style.background = hex;
+    _selectedBgBlock.dataset.color = hex;
+  } else {
+    addBgBlock(hex);
+  }
+  _pushBgColor(hex);
+}
+
+/* ── Text Color ── */
+function applyColor(hex) {
+  document.execCommand('foreColor', false, hex);
+  var custom = document.getElementById('color-custom');
+  if (custom) custom.value = hex;
+}
+
+/* ── Doc Name ── */
+function updateDocName(val) {
+  document.title = val.trim() ? val.trim() + ' — 計畫書編輯器' : '計畫書編輯器';
+}
+
+/* ── 目錄範本 ── */
+function insertTocPage() {
+  var toc =
+    '<p style="text-align:center;font-size:16pt;font-weight:bold;line-height:28pt;margin-bottom:6pt;">目　錄</p>' +
+    '<div style="width:100%;font-family:inherit;">' +
+
+    _tocRow('壹、章節名稱一', '1', true) +
+    _tocRow('一、小節名稱', '1', false) +
+    _tocRow('二、小節名稱', '2', false) +
+
+    _tocRow('貳、章節名稱二', '3', true) +
+    _tocRow('一、小節名稱', '3', false) +
+    _tocRow('二、小節名稱', '4', false) +
+    _tocRow('三、小節名稱', '5', false) +
+
+    _tocRow('參、章節名稱三', '6', true) +
+    _tocRow('一、小節名稱', '6', false) +
+    _tocRow('二、小節名稱', '7', false) +
+
+    _tocRow('肆、章節名稱四', '8', true) +
+    _tocRow('一、小節名稱', '8', false) +
+    _tocRow('二、小節名稱', '9', false) +
+
+    _tocRow('伍、結語', '10', true) +
+
+    '<div style="font-size:13pt;line-height:22pt;padding-top:4pt;">附件</div>' +
+    _tocRow('中文履歷', '11', false) +
+    _tocRow('English CV', '12', false) +
+    _tocRow('其他證明文件', '13', false) +
+
+    '</div>';
+
+  /* 插入到第 1 頁後（成為第 2 頁），或直接末尾新增 */
+  var allPages = document.querySelectorAll('.a4-page');
+  if (allPages.length === 0) {
+    addPage(toc);
+  } else {
+    var newPage = _buildPageElement(toc);
+    var container = document.getElementById('pages-container');
+    /* 插入到第 1 頁之後 */
+    var second = allPages[1] || null;
+    container.insertBefore(newPage, second);
+    pageCount++;
+    refreshFooters();
+    updateStatus();
+    setTimeout(function() {
+      newPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 80);
+  }
+  toast('目錄範本已插入，請自行修改章節名稱與頁碼');
+}
+
+/* 產生目錄一列（flex 排版，點線不與文字混排） */
+function _tocRow(title, page, isChapter) {
+  var fw     = isChapter ? 'bold' : 'normal';
+  var indent = isChapter ? '0' : '1.8em';
+  var row =
+    '<div style="display:flex;align-items:baseline;font-size:13pt;line-height:22pt;' +
+               'font-weight:' + fw + ';padding-left:' + indent + ';">' +
+      '<span style="white-space:nowrap;flex-shrink:0;">' + title + '</span>' +
+      '<span style="flex:1;overflow:hidden;white-space:nowrap;color:#aaa;' +
+                   'padding:0 4px;font-size:10pt;letter-spacing:1px;">' +
+        '·····················································································································' +
+      '</span>' +
+      '<span style="white-space:nowrap;flex-shrink:0;min-width:1.6em;text-align:right;">' + page + '</span>' +
+    '</div>';
+  return row;
+}
+
 /* ── Add Page ── */
+/* 在第 n 頁後插入新頁面（n=0 表示插入到最前面） */
+function insertPageAt() {
+  var allPages = document.querySelectorAll('.a4-page');
+  var total    = allPages.length;
+  var n = parseInt(document.getElementById('insert-page-num').value) || 1;
+  n = Math.max(0, Math.min(n, total));
+
+  if (n >= total) {
+    addPage();
+    return;
+  }
+
+  var newPage = _buildPageElement('');
+  var container = document.getElementById('pages-container');
+  var refPage = allPages[n];
+  container.insertBefore(newPage, refPage);
+  pageCount++;
+  refreshFooters();
+  updateStatus();
+  setTimeout(function() {
+    newPage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    newPage.querySelector('.page-body').focus();
+  }, 80);
+  toast('已在第 ' + n + ' 頁後插入新頁面');
+}
+
+/* 刪除第 n 頁（1-based） */
+function deletePageAt() {
+  var allPages = document.querySelectorAll('.a4-page');
+  var total    = allPages.length;
+  if (total <= 1) { toast('至少保留一頁，無法刪除'); return; }
+  var n = parseInt(document.getElementById('delete-page-num').value) || 1;
+  n = Math.max(1, Math.min(n, total));
+  var page = allPages[n - 1];
+  if (!confirm('確定刪除第 ' + n + ' 頁？此操作無法復原。')) return;
+  page.parentNode.removeChild(page);
+  refreshFooters();
+  updateStatus();
+  toast('已刪除第 ' + n + ' 頁');
+}
+
+/* 建立頁面 DOM 元素（供 insertPageAt 使用） */
+function _buildPageElement(htmlContent) {
+  var page = document.createElement('div');
+  page.className = 'a4-page' + (guidesOn ? ' show-guides' : '');
+  page.id = 'page-tmp-' + Date.now();
+
+  page.addEventListener('click', function() {
+    document.querySelectorAll('.a4-page').forEach(function(p) { p.classList.remove('selected'); });
+    page.classList.add('selected');
+    _lastSelectedPage = page;
+  });
+
+  var guide = document.createElement('div');
+  guide.className = 'page-guide';
+  page.appendChild(guide);
+
+  var body = document.createElement('div');
+  body.className = 'page-body';
+  body.contentEditable = 'true';
+  body.spellcheck = false;
+  body.style.paddingTop    = margins.top    + 'px';
+  body.style.paddingBottom = margins.bottom + 'px';
+  body.style.paddingLeft   = margins.left   + 'px';
+  body.style.paddingRight  = margins.right  + 'px';
+  guide.style.top   = margins.top  + 'px';
+  guide.style.left  = margins.left + 'px';
+  guide.style.right = margins.right + 'px';
+
+  body.innerHTML = (htmlContent !== undefined && htmlContent !== null) ? htmlContent : '<p><br></p>';
+
+  /* 還原浮動文字框事件 */
+  body.querySelectorAll('.float-txt-wrap').forEach(function(wrap) { _bindFloatTxt(wrap); });
+
+  body.addEventListener('input', function() { updateStatus(); checkOverflow(body); });
+  body.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') { e.preventDefault(); _handleTab(e); }
+  });
+
+  page.appendChild(body);
+
+  var footer = document.createElement('div');
+  footer.className = 'page-footer';
+  page.appendChild(footer);
+
+  return page;
+}
+
 function addPage(htmlContent) {
   pageCount++;
   var container = document.getElementById('pages-container');
@@ -605,6 +1618,7 @@ function addPage(htmlContent) {
   page.addEventListener('click', function() {
     document.querySelectorAll('.a4-page').forEach(function(p) { p.classList.remove('selected'); });
     page.classList.add('selected');
+    _lastSelectedPage = page;
   });
 
   var guide = document.createElement('div');
@@ -625,6 +1639,32 @@ function addPage(htmlContent) {
 
   if (htmlContent !== undefined) {
     body.innerHTML = htmlContent;
+    /* 還原浮動圖片（可能在 body 內或 page 層級） */
+    function _restoreImgWrap(wrap) {
+      wrap.querySelector('.img-delete-btn') && wrap.querySelector('.img-delete-btn').addEventListener('mousedown', function(e) {
+        e.stopPropagation();
+        wrap.parentNode.removeChild(wrap);
+      });
+      wrap.addEventListener('mousedown', function() {
+        document.querySelectorAll('.float-img-wrap').forEach(function(w) { w.classList.remove('selected'); });
+        wrap.classList.add('selected');
+      });
+      var handle = wrap.querySelector('.img-resize-handle');
+      var imgEl  = wrap.querySelector('img');
+      if (handle && imgEl) initImgResize(wrap, handle, imgEl);
+      initImgDrag(wrap);
+    }
+    body.querySelectorAll('.float-img-wrap').forEach(_restoreImgWrap);
+    /* 也處理直接在 page 層級的圖片（新格式） */
+    setTimeout(function() {
+      page.querySelectorAll('.float-img-wrap').forEach(function(wrap) {
+        if (!wrap._imgBound) { wrap._imgBound = true; _restoreImgWrap(wrap); }
+      });
+    }, 0);
+    /* 還原浮動文字框的互動事件 */
+    body.querySelectorAll('.float-txt-wrap').forEach(function(wrap) {
+      _bindFloatTxt(wrap);
+    });
   } else if (pageCount === 1) {
     body.innerHTML =
       '<h1>計畫書名稱</h1><p><br></p>' +
@@ -637,9 +1677,9 @@ function addPage(htmlContent) {
     body.innerHTML = '<p><br></p>';
   }
 
-  body.addEventListener('input', updateStatus);
+  body.addEventListener('input', function() { updateStatus(); checkOverflow(body); });
   body.addEventListener('keydown', function(e) {
-    if (e.key === 'Tab') { e.preventDefault(); document.execCommand('insertText', false, '\u3000\u3000'); }
+    if (e.key === 'Tab') { e.preventDefault(); _handleTab(e); }
   });
 
   page.appendChild(body);
@@ -713,6 +1753,7 @@ function applyFontToSelection(ff, label) {
   });
 }
 
+// 字型名稱顯示（topbar）
 document.addEventListener('selectionchange', function() {
   try {
     var sel = window.getSelection();
@@ -731,6 +1772,32 @@ document.addEventListener('selectionchange', function() {
 /* ── Insert text ── */
 function insertText(ch) { document.execCommand('insertText', false, ch); }
 
+/* ── 插入超連結 ── */
+function insertLink() {
+  var inp = document.getElementById('link-url-input');
+  var url = (inp.value || '').trim();
+  if (!url) { toast('請先輸入網址'); inp.focus(); return; }
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+  var sel = window.getSelection();
+  var linkText = (sel && !sel.isCollapsed) ? sel.toString() : url;
+
+  /* 用 execCommand createLink，再補 target="_blank" */
+  document.execCommand('createLink', false, url);
+
+  /* 找剛插入的 <a> 並設定屬性 */
+  var anchors = document.querySelectorAll('a[href="' + url + '"]');
+  anchors.forEach(function(a) {
+    a.target = '_blank';
+    a.rel    = 'noopener noreferrer';
+    a.style.color          = '#0563c1';
+    a.style.textDecoration = 'underline';
+  });
+
+  inp.value = '';
+  toast('超連結已插入，PDF 中可點擊');
+}
+
 /* ── Guides ── */
 function toggleGuides() {
   guidesOn = !guidesOn;
@@ -748,9 +1815,216 @@ function updateStatus() {
   document.getElementById('stat-pages-top').textContent = pages + ' 頁';
   document.getElementById('stat-chars').textContent     = chars + ' 字';
   document.getElementById('stat-chars-top').textContent = chars + ' 字';
+  /* 同步插入/刪除頁面輸入框的 max 值 */
+  var insEl = document.getElementById('insert-page-num');
+  var delEl = document.getElementById('delete-page-num');
+  if (insEl) insEl.max = pages;
+  if (delEl) { delEl.max = pages; if (parseInt(delEl.value) > pages) delEl.value = pages; }
+}
+
+/* ── 自動換頁 ── */
+var _overflowTimer = null;
+function checkOverflow(body) {
+  /* 防抖：輸入停止 300ms 後才執行，避免頻繁重排 */
+  clearTimeout(_overflowTimer);
+  _overflowTimer = setTimeout(function() { _doCheckOverflow(body); }, 300);
+}
+
+function _doCheckOverflow(body) {
+  var paddingTop    = parseFloat(body.style.paddingTop)    || 96;
+  var paddingBottom = parseFloat(body.style.paddingBottom) || 80;
+  var pageHeight    = 1123;
+  var maxContentH   = pageHeight - paddingTop - paddingBottom;
+
+  if (body.scrollHeight <= maxContentH + 2) return;
+
+  /* 過濾掉絕對定位的浮動元素（不佔文流） */
+  function isFlow(n) {
+    if (n.nodeType !== Node.ELEMENT_NODE) return n.nodeType === Node.TEXT_NODE;
+    var cls = n.classList;
+    return !(cls.contains('float-img-wrap') || cls.contains('float-txt-wrap'));
+  }
+
+  var children = Array.from(body.childNodes).filter(isFlow);
+  if (children.length === 0) return;
+
+  /* ── 步驟 1：找出第一個讓累計高度超出的子節點 ── */
+  var bodyTop     = body.getBoundingClientRect().top;
+  var limitBottom = bodyTop + maxContentH;
+  var splitIdx    = -1;
+
+  for (var i = 0; i < children.length; i++) {
+    var n = children[i];
+    if (n.nodeType !== Node.ELEMENT_NODE) continue;
+    var rect = n.getBoundingClientRect();
+    if (rect.bottom > limitBottom + 2) {
+      splitIdx = i;
+      break;
+    }
+  }
+
+  if (splitIdx < 0) return; /* 沒有節點超出 */
+
+  /* ── 步驟 2：嘗試在溢出節點內部拆分（以行/子節點為單位） ── */
+  var overflowNode = children[splitIdx];
+  var splitResult  = _splitNodeAtLimit(overflowNode, limitBottom);
+  /* splitResult.keep  = 留在本頁的部分（可能是修改後的原節點，或 null）
+     splitResult.spill = 移到下一頁的部分（Element 或 null） */
+
+  /* ── 步驟 3：決定要移到下一頁的節點清單 ── */
+  var toMove = [];
+  if (splitResult.spill) {
+    toMove.push(splitResult.spill);
+  }
+  /* splitIdx 之後的節點全部移走 */
+  children.slice(splitIdx + 1).forEach(function(n) { toMove.push(n); });
+
+  if (toMove.length === 0) return;
+
+  /* ── 步驟 4：找或建立下一頁 ── */
+  var currentPage = body.closest('.a4-page');
+  var allPages    = Array.from(document.querySelectorAll('.a4-page'));
+  var pageIdx     = allPages.indexOf(currentPage);
+  var nextPage    = allPages[pageIdx + 1] || null;
+
+  var sel   = window.getSelection();
+  var range = (sel && sel.rangeCount) ? sel.getRangeAt(0).cloneRange() : null;
+
+  if (!nextPage) {
+    addPage('');
+    allPages = Array.from(document.querySelectorAll('.a4-page'));
+    nextPage = allPages[pageIdx + 1];
+  }
+
+  var nextBody = nextPage.querySelector('.page-body');
+  if (!nextBody) return;
+
+  /* ── 步驟 5：把溢出節點從原頁移除（若已被拆分，原節點已縮短，不需再移） ── */
+  if (!splitResult.spill && splitIdx >= 0) {
+    /* 整個 overflowNode 都要移走（無法拆分的情況） */
+    if (overflowNode.parentNode === body) {
+      body.removeChild(overflowNode);
+      toMove.unshift(overflowNode);
+    }
+  }
+  /* splitIdx+1 以後的節點從原頁移除 */
+  children.slice(splitIdx + 1).forEach(function(n) {
+    if (n.parentNode === body) body.removeChild(n);
+  });
+
+  /* ── 步驟 6：插入到下一頁開頭 ── */
+  var firstChild = nextBody.firstChild;
+  toMove.forEach(function(n) {
+    nextBody.insertBefore(n, firstChild);
+    firstChild = n;
+  });
+
+  if (range) {
+    try { sel.removeAllRanges(); sel.addRange(range); } catch(e) {}
+  }
+
+  updateStatus();
+  _doCheckOverflow(nextBody);
+}
+
+/* 嘗試在 limitBottom（視窗座標）處拆分 el 的內容。
+   回傳 { keep: el（已縮短）, spill: 新節點（溢出部分）}
+   若無法拆分則回傳 { keep: null, spill: null }               */
+function _splitNodeAtLimit(el, limitBottom) {
+  if (el.nodeType !== Node.ELEMENT_NODE) return { keep: null, spill: null };
+
+  /* 取得直接子節點（只考慮元素節點，文字節點以行高估算） */
+  var kids = Array.from(el.childNodes);
+  if (kids.length === 0) return { keep: null, spill: null };
+
+  /* 找第一個超出的子節點 */
+  var splitAt = -1;
+  for (var i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (k.nodeType === Node.ELEMENT_NODE) {
+      var r = k.getBoundingClientRect();
+      if (r.bottom > limitBottom + 2) { splitAt = i; break; }
+    }
+  }
+
+  if (splitAt < 0) return { keep: null, spill: null }; /* 全部都在限制內 */
+  if (splitAt === 0) return { keep: null, spill: null }; /* 第一個子節點就超出，整體移走 */
+
+  /* 建立一個相同標籤的新節點，把超出的子節點移進去 */
+  var spill = document.createElement(el.tagName);
+  /* 複製 class / style */
+  if (el.className) spill.className = el.className;
+  if (el.getAttribute('style')) spill.setAttribute('style', el.getAttribute('style'));
+
+  /* 把 splitAt 以後的子節點移到 spill */
+  var toSpill = kids.slice(splitAt);
+  toSpill.forEach(function(k) {
+    el.removeChild(k);
+    spill.appendChild(k);
+  });
+
+  return { keep: el, spill: spill };
 }
 
 /* ── Save HTML ── */
+/* 收集每頁的浮動文字框資料 */
+function collectFloatTexts() {
+  var result = [];
+  document.querySelectorAll('.a4-page').forEach(function(page, pi) {
+    page.querySelectorAll('.float-txt-wrap').forEach(function(wrap) {
+      var body = wrap.querySelector('.float-txt-body');
+      result.push({
+        page:     pi,
+        left:     wrap.style.left,
+        top:      wrap.style.top,
+        width:    wrap.style.width,
+        height:   wrap.style.height,
+        vertical: !!(body && body.dataset.vertical === 'true'),
+        html:     body ? body.innerHTML : ''
+      });
+    });
+  });
+  return result;
+}
+
+/* 還原浮動文字框（從 EDITOR_STATE.floatTexts） */
+function restoreFloatTexts(list) {
+  if (!list || !list.length) return;
+  var pages = document.querySelectorAll('.a4-page');
+  list.forEach(function(d) {
+    var page = pages[d.page];
+    if (!page) return;
+
+    var wrap = document.createElement('div');
+    wrap.className = 'float-txt-wrap';
+    wrap.style.left   = d.left;
+    wrap.style.top    = d.top;
+    wrap.style.width  = d.width;
+    wrap.style.height = d.height;
+
+    var txtBody = document.createElement('div');
+    txtBody.className = 'float-txt-body';
+    txtBody.contentEditable = floatMoveMode ? 'false' : 'true';
+    txtBody.spellcheck = false;
+    if (d.vertical) txtBody.dataset.vertical = 'true';
+    txtBody.innerHTML = d.html;
+
+    var resizeHandle = document.createElement('div');
+    resizeHandle.className = 'float-txt-resize';
+
+    var delBtn = document.createElement('button');
+    delBtn.className = 'float-txt-del';
+    delBtn.textContent = '×';
+    delBtn.title = '刪除文字框';
+
+    wrap.appendChild(txtBody);
+    wrap.appendChild(resizeHandle);
+    wrap.appendChild(delBtn);
+    page.appendChild(wrap);
+    _bindFloatTxt(wrap);
+  });
+}
+
 function saveHTML() {
   var pagesData = [];
   document.querySelectorAll('.page-body').forEach(function(b) { pagesData.push(b.innerHTML); });
@@ -761,7 +2035,12 @@ function saveHTML() {
       bottom: parseFloat(document.getElementById('mg-bottom').value) || 25.4,
       left:   parseFloat(document.getElementById('mg-left').value)   || 31.7,
       right:  parseFloat(document.getElementById('mg-right').value)  || 31.7
-    }
+    },
+    bgBlocks:   collectBgBlocks(),
+    floatTexts: collectFloatTexts(),
+    docName:    (document.getElementById('doc-name-input') || {}).value || '',
+    textColors: _textColors.slice(),
+    bgColors:   _bgColors.slice()
   };
   var savedJSON = JSON.stringify(state);
   var fullHTML = document.documentElement.outerHTML;
@@ -774,6 +2053,11 @@ function saveHTML() {
     '    var mg=EDITOR_STATE.margins;\n' +
     '    if(mg){document.getElementById("mg-top").value=mg.top;document.getElementById("mg-bottom").value=mg.bottom;document.getElementById("mg-left").value=mg.left;document.getElementById("mg-right").value=mg.right;applyMargins();}\n' +
     '    EDITOR_STATE.pages.forEach(function(h){addPage(h);});\n' +
+    '    if(EDITOR_STATE.bgBlocks){restoreBgBlocks(EDITOR_STATE.bgBlocks);}\n' +
+    '    if(EDITOR_STATE.docName){var ni=document.getElementById("doc-name-input");if(ni){ni.value=EDITOR_STATE.docName;updateDocName(EDITOR_STATE.docName);}}\n' +
+    '    if(EDITOR_STATE.textColors){_textColors=EDITOR_STATE.textColors;_renderTextColors();}\n' +
+    '    if(EDITOR_STATE.bgColors){_bgColors=EDITOR_STATE.bgColors;_renderBgColors();}\n' +
+    '    if(EDITOR_STATE.floatTexts){restoreFloatTexts(EDITOR_STATE.floatTexts);}\n' +
     '  } else { addPage(); }\n' +
     '});\n' +
     '<\/script>\n';
@@ -955,6 +2239,27 @@ function wAttr(el, name) {
 
 /* ── 解析 <w:tbl> → HTML table ── */
 function parseWTable(wtbl) {
+  /* 判斷表格是否有邊框：讀取 tblPr > tblBorders > top 的 val
+     若 val 為 none/nil/0 或不存在，視為無邊框排版表格 */
+  var tblHasBorder = false;
+  for (var pi = 0; pi < wtbl.childNodes.length; pi++) {
+    if (wtbl.childNodes[pi].localName !== 'tblPr') continue;
+    var tblPr = wtbl.childNodes[pi];
+    var tblBordersEl = null;
+    for (var bi = 0; bi < tblPr.childNodes.length; bi++) {
+      if (tblPr.childNodes[bi].localName === 'tblBorders') { tblBordersEl = tblPr.childNodes[bi]; break; }
+    }
+    if (tblBordersEl) {
+      /* 只要有任一邊框子元素且 val 不是 none/nil，就視為有邊框 */
+      for (var bj = 0; bj < tblBordersEl.childNodes.length; bj++) {
+        var bEl = tblBordersEl.childNodes[bj];
+        var bVal = bEl.getAttribute ? (bEl.getAttribute('w:val') || bEl.getAttribute('val') || '') : '';
+        if (bVal && bVal !== 'none' && bVal !== 'nil') { tblHasBorder = true; break; }
+      }
+    }
+    break;
+  }
+
   /* 先掃第一列，計算各欄 twips 總和（用來算百分比） */
   var firstRowTwips = [];
   var totalTwips = 0;
@@ -1052,7 +2357,9 @@ function parseWTable(wtbl) {
       if (!cellContent) cellContent = '<p style="margin:0;font-family:\'標楷體\',serif;font-size:14pt;line-height:24pt;"><br></p>';
 
       var tdAttrs = colspan > 1 ? ' colspan="' + colspan + '"' : '';
-      var tdStyle = 'border:1px solid #000;' + widthStyle + bgCss +
+      /* 無邊框表格：完全不輸出 border 屬性，靠 CSS 預設（無邊框）顯示 */
+      var borderCss = tblHasBorder ? 'border:1px solid #000;' : '';
+      var tdStyle = borderCss + widthStyle + bgCss +
                     'padding:4px 8px;vertical-align:' + vAlign + ';' +
                     'word-break:break-word;overflow-wrap:break-word;';
       cellsHtml += '<td' + tdAttrs + ' style="' + tdStyle + '">' + cellContent + '</td>';
@@ -1086,19 +2393,50 @@ function loadDOCX(file, event) {
         var body = xmlDoc.getElementsByTagNameNS('*', 'body')[0];
         if (!body) { toast('找不到文件內容'); return; }
 
-        var htmlParts = [];
+        /* 把 body 內容依分頁符號拆成多頁 */
+        var pages = [];
+        var currentPage = [];
+
+        function flushPage() {
+          if (currentPage.length > 0) {
+            pages.push(currentPage.join(''));
+            currentPage = [];
+          }
+        }
+
+        /* 判斷 <w:p> 是否包含分頁符號 <w:br w:type="page"> */
+        function hasPageBreak(wp) {
+          var brs = wp.getElementsByTagNameNS('*', 'br');
+          for (var bi = 0; bi < brs.length; bi++) {
+            var t = brs[bi].getAttribute('w:type') || brs[bi].getAttribute('type') || '';
+            if (t === 'page') return true;
+          }
+          /* 也偵測 <w:lastRenderedPageBreak> */
+          if (wp.getElementsByTagNameNS('*', 'lastRenderedPageBreak').length > 0) return true;
+          return false;
+        }
+
         var children = body.childNodes;
         for (var i = 0; i < children.length; i++) {
           var node = children[i];
-          if (node.localName === 'p')   htmlParts.push(parseWParagraph(node));
-          if (node.localName === 'tbl') htmlParts.push(parseWTable(node));
+          if (node.localName === 'p') {
+            if (hasPageBreak(node)) {
+              /* 分頁符號：先把目前頁面存起來，開新頁 */
+              flushPage();
+            } else {
+              currentPage.push(parseWParagraph(node));
+            }
+          } else if (node.localName === 'tbl') {
+            currentPage.push(parseWTable(node));
+          }
         }
+        flushPage(); /* 最後一頁 */
 
-        if (htmlParts.length === 0) { toast('文件是空的'); return; }
+        if (pages.length === 0) { toast('文件是空的'); return; }
         document.getElementById('pages-container').innerHTML = '';
         pageCount = 0;
-        addPage(htmlParts.join(''));
-        toast('已載入 DOCX');
+        pages.forEach(function(html) { addPage(html); });
+        toast('已載入 DOCX，共 ' + pages.length + ' 頁');
       }).catch(function(err) { toast('DOCX 解析失敗：' + err.message); });
       if (event) event.target.value = '';
     };
@@ -1152,6 +2490,19 @@ function loadHTML(event) {
           applyMargins();
         }
         pages.forEach(function(h) { addPage(h); });
+
+        /* 還原色塊、文字塊、顏色、文件名稱 */
+        if (state) {
+          if (state.bgBlocks)   restoreBgBlocks(state.bgBlocks);
+          if (state.floatTexts) restoreFloatTexts(state.floatTexts);
+          if (state.docName) {
+            var ni = document.getElementById('doc-name-input');
+            if (ni) { ni.value = state.docName; updateDocName(state.docName); }
+          }
+          if (state.textColors) { _textColors = state.textColors; _renderTextColors(); }
+          if (state.bgColors)   { _bgColors   = state.bgColors;   _renderBgColors(); }
+        }
+
         toast('已載入 ' + pages.length + ' 頁');
       } catch(err) { toast('格式錯誤：' + err.message); }
     } else {
@@ -1191,6 +2542,9 @@ function exportPDF() {
     '.page-guide{display:none!important}' +
     '.page-body{padding-top:'+mt+'mm!important;padding-bottom:'+mb+'mm!important;padding-left:'+ml+'mm!important;padding-right:'+mr+'mm!important;min-height:0!important}' +
     '.page-footer{bottom:7mm!important}' +
+    '.float-txt-wrap .float-txt-resize,.float-txt-wrap .float-txt-del{display:none!important}' +
+    '.float-txt-wrap.selected{outline:none!important}' +
+    '.float-txt-wrap{-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
     '}';
   document.head.appendChild(s);
   setTimeout(function() {
@@ -1256,6 +2610,9 @@ function _doExportDOCX() {
         return;
       }
 
+      /* 浮動圖片包裝 → 跳過（DOCX 不支援絕對定位浮動圖片，略過） */
+      if (tag === 'DIV' && node.classList && node.classList.contains('float-img-wrap')) return;
+
       /* 判斷此節點是否包含 block 子節點（p/div/h1/h2/table） */
       var BLOCK = { P:1, DIV:1, H1:1, H2:1, H3:1, H4:1, H5:1, H6:1, TABLE:1, UL:1, OL:1, LI:1 };
       var hasBlockChild = Array.from(node.childNodes).some(function(c) {
@@ -1278,6 +2635,17 @@ function _doExportDOCX() {
   if (allParagraphs.length === 0) { toast('文件是空的'); return; }
 
   var doc = new docx.Document({
+    /* 覆蓋 Word 預設段落樣式，消除 Normal 樣式的段前段後距 */
+    styles: {
+      default: {
+        document: {
+          run: { font: '標楷體', size: 28 },
+          paragraph: {
+            spacing: { before: 0, after: 0, line: 480, lineRule: 'exact' }
+          }
+        }
+      }
+    },
     sections: [{
       properties: {
         page: {
@@ -1512,27 +2880,27 @@ function makeDocxTable(tableEl, mmToTwip) {
         widthTwips = Math.round(parseFloat(wStyle) / 100 * 9360);
       }
 
-      /* 讀取 td 的 border style（判斷是否有邊框） */
-      var tdBorderStyle = td.style.border || td.style.borderTop || '';
-      var hasBorder = tdBorderStyle.indexOf('none') === -1; /* 預設有邊框 */
-      var borderDef = hasBorder ? {
-        top:    { style: 'single', size: 4, color: '000000' },
-        bottom: { style: 'single', size: 4, color: '000000' },
-        left:   { style: 'single', size: 4, color: '000000' },
-        right:  { style: 'single', size: 4, color: '000000' }
-      } : {
-        top:    { style: 'none' },
-        bottom: { style: 'none' },
-        left:   { style: 'none' },
-        right:  { style: 'none' }
-      };
+      /* 讀取 td 的 border style（判斷是否有邊框）
+         從 getAttribute('style') 字串直接解析，避免 DOM shorthand 問題 */
+      var tdStyleStr = td.getAttribute('style') || '';
+      var hasBorder = /border\s*:\s*(?!none)[^;]+solid/i.test(tdStyleStr) ||
+                      /border\s*:\s*\d/i.test(tdStyleStr);
+      var BS = (docx.BorderStyle && docx.BorderStyle.SINGLE) ? docx.BorderStyle.SINGLE : 'single';
 
       var cellOpts = {
         children: paragraphs,
         columnSpan: colspan > 1 ? colspan : undefined,
-        borders: borderDef,
         margins: { top: 57, bottom: 57, left: 114, right: 114 }
       };
+      /* 只有有邊框才設定 borders，無邊框完全不設（讓 docx.js 預設無邊框） */
+      if (hasBorder) {
+        cellOpts.borders = {
+          top:    { style: BS, size: 4, color: '000000' },
+          bottom: { style: BS, size: 4, color: '000000' },
+          left:   { style: BS, size: 4, color: '000000' },
+          right:  { style: BS, size: 4, color: '000000' }
+        };
+      }
       if (widthTwips > 0) cellOpts.width = { size: widthTwips, type: 'dxa' };
 
       /* 背景色 */
@@ -1546,11 +2914,30 @@ function makeDocxTable(tableEl, mmToTwip) {
   });
 
   if (rows.length === 0) return null;
-  /* 確保每列欄數一致（docx 要求） */
-  return new docx.Table({
+
+  /* 判斷整個表格是否有邊框：從第一個 td 的 style 字串解析 */
+  var firstTd = tableEl.querySelector('td,th');
+  var firstTdStyleStr = firstTd ? (firstTd.getAttribute('style') || '') : '';
+  var tblExportHasBorder = /border\s*:\s*(?!none)[^;]+solid/i.test(firstTdStyleStr) ||
+                           /border\s*:\s*\d/i.test(firstTdStyleStr);
+
+  var BS2 = (docx.BorderStyle && docx.BorderStyle.SINGLE) ? docx.BorderStyle.SINGLE : 'single';
+  var tableOpts = {
     rows: rows,
     width: { size: 9360, type: 'dxa' }
-  });
+  };
+  /* 只有有邊框才設定 borders，無邊框完全不設 */
+  if (tblExportHasBorder) {
+    tableOpts.borders = {
+      top:              { style: BS2, size: 4, color: '000000' },
+      bottom:           { style: BS2, size: 4, color: '000000' },
+      left:             { style: BS2, size: 4, color: '000000' },
+      right:            { style: BS2, size: 4, color: '000000' },
+      insideHorizontal: { style: BS2, size: 4, color: '000000' },
+      insideVertical:   { style: BS2, size: 4, color: '000000' }
+    };
+  }
+  return new docx.Table(tableOpts);
 }
 
 function getComputedFont(el) {
@@ -1574,7 +2961,16 @@ function rgbToHex(rgb) {
 ══════════════════════════════════════════ */
 
 /* 找目前游標所在的 .a4-page，若無則用最後一頁 */
+/* 記錄最後點擊的頁面（在 file input 開啟前保存） */
+var _lastActivePage = null;
+document.addEventListener('mousedown', function(e) {
+  var page = e.target.closest('.a4-page');
+  if (page) _lastActivePage = page;
+});
+
 function getActivePage() {
+  /* 優先用滑鼠點擊記錄的頁面 */
+  if (_lastActivePage && document.contains(_lastActivePage)) return _lastActivePage;
   var sel = window.getSelection();
   if (sel && sel.rangeCount) {
     var node = sel.getRangeAt(0).startContainer;
@@ -1585,6 +2981,205 @@ function getActivePage() {
   }
   var pages = document.querySelectorAll('.a4-page');
   return pages[pages.length - 1] || null;
+}
+
+/* ── 字距調整 ── */
+function adjustLetterSpacing(delta) {
+  var inp = document.getElementById('letter-spacing-val');
+  var cur = parseFloat(inp.value) || 0;
+  var next = Math.round((cur + delta) * 100) / 100;
+  inp.value = next;
+  setLetterSpacing(next);
+}
+function setLetterSpacing(val) {
+  var sel = window.getSelection();
+  if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+  var range = sel.getRangeAt(0);
+  var span  = document.createElement('span');
+  span.style.letterSpacing = val + 'em';
+  try {
+    range.surroundContents(span);
+  } catch(e) {
+    /* 跨多節點時用 extractContents */
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+  }
+  sel.removeAllRanges();
+  var newRange = document.createRange();
+  newRange.selectNodeContents(span);
+  sel.addRange(newRange);
+}
+
+/* ── 浮動文字框 ── */
+var floatMoveMode = false;
+
+function toggleFloatMoveMode() {
+  floatMoveMode = !floatMoveMode;
+  var btn = document.getElementById('float-move-btn');
+  if (floatMoveMode) {
+    btn.classList.add('active');
+    btn.title = '目前：移動模式（再按切回編輯）';
+    document.querySelectorAll('.float-txt-body').forEach(function(b) {
+      b.contentEditable = 'false';
+    });
+    toast('移動模式：可拖曳文字塊，再按 ✥ 切回編輯');
+  } else {
+    btn.classList.remove('active');
+    btn.title = '切換文字塊移動模式';
+    document.querySelectorAll('.float-txt-body').forEach(function(b) {
+      b.contentEditable = 'true';
+    });
+    toast('編輯模式：點入文字塊可編輯文字');
+  }
+}
+
+var _lastSelectedFloatTxt = null;
+
+function duplicateFloatText() {
+  var src = _lastSelectedFloatTxt || document.querySelector('.float-txt-wrap.selected');
+  if (!src || !src.isConnected) { toast('請先選取一個文字塊'); return; }
+
+  var page = src.closest('.a4-page');
+  if (!page) return;
+
+  // 深複製 DOM
+  var clone = src.cloneNode(true);
+
+  // 偏移 16px 避免完全重疊
+  var left = parseFloat(src.style.left) || 0;
+  var top  = parseFloat(src.style.top)  || 0;
+  var isPercent = (src.style.left || '').indexOf('%') > -1;
+  clone.style.left = isPercent ? (left + 2)  + '%' : (left + 16) + 'px';
+  clone.style.top  = isPercent ? (top  + 2)  + '%' : (top  + 16) + 'px';
+
+  // 取消選取原本，選取新複製的
+  src.classList.remove('selected');
+  clone.classList.add('selected');
+
+  page.appendChild(clone);
+  _bindFloatTxt(clone);
+  toast('文字塊已複製');
+}
+
+function insertFloatText(vertical) {
+  var page = getActivePage();
+  if (!page) { toast('請先點選頁面再插入文字框'); return; }
+
+  var wrap = document.createElement('div');
+  wrap.className = 'float-txt-wrap';
+  wrap.style.left   = '5%';
+  wrap.style.top    = '5%';
+  wrap.style.width  = vertical ? '8%'  : '40%';
+  wrap.style.height = vertical ? '30%' : '12%';
+
+  var txtBody = document.createElement('div');
+  txtBody.className = 'float-txt-body';
+  txtBody.contentEditable = floatMoveMode ? 'false' : 'true';
+  txtBody.spellcheck = false;
+  if (vertical) txtBody.dataset.vertical = 'true';
+  txtBody.textContent = vertical ? '直書文字' : '文字框內容';
+
+  var resizeHandle = document.createElement('div');
+  resizeHandle.className = 'float-txt-resize';
+
+  var delBtn = document.createElement('button');
+  delBtn.className = 'float-txt-del';
+  delBtn.textContent = '×';
+  delBtn.title = '刪除文字框';
+
+  wrap.appendChild(txtBody);
+  wrap.appendChild(resizeHandle);
+  wrap.appendChild(delBtn);
+
+  /* 插入到 .a4-page（非 .page-body），避免列印時 padding 改變影響定位 */
+  page.appendChild(wrap);
+
+  _bindFloatTxt(wrap);
+
+  /* 插入後選取文字框內文字（不用 execCommand 避免全選整頁） */
+  if (!floatMoveMode) {
+    setTimeout(function() {
+      txtBody.focus();
+      var r = document.createRange();
+      r.selectNodeContents(txtBody);
+      var s = window.getSelection();
+      s.removeAllRanges();
+      s.addRange(r);
+    }, 0);
+  }
+  toast(vertical ? '直書文字框已插入' : '橫書文字框已插入');
+}
+
+/* 綁定浮動文字框事件（插入時 & 載入 HTML 時共用） */
+function _bindFloatTxt(wrap) {
+  var txtBody = wrap.querySelector('.float-txt-body');
+  var handle  = wrap.querySelector('.float-txt-resize');
+  var delBtn  = wrap.querySelector('.float-txt-del');
+
+  delBtn.addEventListener('mousedown', function(e) {
+    e.stopPropagation();
+    wrap.parentNode.removeChild(wrap);
+  });
+
+  /* 選取框 */
+  wrap.addEventListener('mousedown', function(e) {
+    document.querySelectorAll('.float-txt-wrap').forEach(function(w) { w.classList.remove('selected'); });
+    wrap.classList.add('selected');
+    _lastSelectedFloatTxt = wrap;
+  });
+
+  /* 拖曳：移動模式下整個 wrap 都可拖；編輯模式下只有 wrap 邊框區域可拖 */
+  wrap.addEventListener('mousedown', function(e) {
+    if (e.target === delBtn) return;
+    if (e.target === handle) return;
+    /* 編輯模式下點到文字內容區 → 讓瀏覽器處理游標，不拖曳 */
+    if (!floatMoveMode && (e.target === txtBody || txtBody.contains(e.target))) return;
+
+    e.preventDefault();
+    var pageEl = wrap.parentNode;
+    var pageW  = pageEl.offsetWidth  || 794;
+    var pageH  = pageEl.offsetHeight || 1123;
+    var origL  = parseFloat(wrap.style.left) || 0;
+    var origT  = parseFloat(wrap.style.top)  || 0;
+    var startX = e.clientX;
+    var startY = e.clientY;
+    var moved  = false;
+
+    function onMove(ev) {
+      moved = true;
+      var scale = currentZoom / 100;
+      wrap.style.left = (origL + (ev.clientX - startX) / scale / pageW * 100) + '%';
+      wrap.style.top  = (origT + (ev.clientY - startY) / scale / pageH * 100) + '%';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  /* 縮放（右下角 handle） */
+  handle.addEventListener('mousedown', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    var pageEl  = wrap.parentNode;
+    var pageW   = pageEl.offsetWidth  || 794;
+    var pageH   = pageEl.offsetHeight || 1123;
+    var startX  = e.clientX, startY = e.clientY;
+    var startWP = parseFloat(wrap.style.width)  || (wrap.offsetWidth  / pageW * 100);
+    var startHP = parseFloat(wrap.style.height) || (wrap.offsetHeight / pageH * 100);
+    function onMove(ev) {
+      var scale = currentZoom / 100;
+      wrap.style.width  = Math.max(5, startWP + (ev.clientX - startX) / scale / pageW * 100) + '%';
+      wrap.style.height = Math.max(3, startHP + (ev.clientY - startY) / scale / pageH * 100) + '%';
+    }
+    function onUp() {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
 }
 
 function insertImage(event) {
@@ -1599,11 +3194,9 @@ function insertImage(event) {
 
     var wrap = document.createElement('div');
     wrap.className = 'float-img-wrap';
-    /* 預設放在頁面左上角（邊距內） */
-    var ml = margins.left || 120;
-    var mt = margins.top  || 96;
-    wrap.style.left = ml + 'px';
-    wrap.style.top  = mt + 'px';
+    /* 插入到 .a4-page（非 .page-body），定位基準為整頁，列印時不受 padding 影響 */
+    wrap.style.left  = '120px';  /* 預設對齊版心左邊 */
+    wrap.style.top   = '96px';   /* 預設對齊版心上邊 */
     wrap.style.width = '200px';
 
     var img = document.createElement('img');
@@ -1626,6 +3219,7 @@ function insertImage(event) {
     wrap.appendChild(img);
     wrap.appendChild(resizeHandle);
     wrap.appendChild(delBtn);
+    /* 插入到 .a4-page，定位基準穩定，列印不跑位 */
     page.appendChild(wrap);
 
     /* 選取狀態 */
@@ -1641,31 +3235,23 @@ function insertImage(event) {
   reader.readAsDataURL(file);
 }
 
-/* 拖曳移動 */
+/* 拖曳移動（px 定位，相對於 .a4-page） */
 function initImgDrag(wrap) {
-  var startX, startY, origLeft, origTop, dragging = false;
-
   wrap.addEventListener('mousedown', function(e) {
     if (e.target.classList.contains('img-resize-handle')) return;
     if (e.target.classList.contains('img-delete-btn')) return;
     e.preventDefault();
-    dragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    origLeft = parseInt(wrap.style.left) || 0;
-    origTop  = parseInt(wrap.style.top)  || 0;
+    var scale   = currentZoom / 100;
+    var origLeft = parseFloat(wrap.style.left) || 0;
+    var origTop  = parseFloat(wrap.style.top)  || 0;
+    var startX  = e.clientX;
+    var startY  = e.clientY;
 
-    function onMove(e) {
-      if (!dragging) return;
-      var dx = e.clientX - startX;
-      var dy = e.clientY - startY;
-      /* 套用縮放補正 */
-      var scale = currentZoom / 100;
-      wrap.style.left = (origLeft + dx / scale) + 'px';
-      wrap.style.top  = (origTop  + dy / scale) + 'px';
+    function onMove(ev) {
+      wrap.style.left = (origLeft + (ev.clientX - startX) / scale) + 'px';
+      wrap.style.top  = (origTop  + (ev.clientY - startY) / scale) + 'px';
     }
     function onUp() {
-      dragging = false;
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
     }
@@ -1674,17 +3260,17 @@ function initImgDrag(wrap) {
   });
 }
 
-/* 縮放調整大小 */
+/* 縮放調整大小（px） */
 function initImgResize(wrap, handle, img) {
   handle.addEventListener('mousedown', function(e) {
     e.preventDefault();
     e.stopPropagation();
-    var startX = e.clientX;
-    var startW = parseInt(wrap.style.width) || wrap.offsetWidth;
+    var scale   = currentZoom / 100;
+    var startX  = e.clientX;
+    var startW  = wrap.offsetWidth;
 
-    function onMove(e) {
-      var scale = currentZoom / 100;
-      var newW = Math.max(40, startW + (e.clientX - startX) / scale);
+    function onMove(ev) {
+      var newW = Math.max(40, startW + (ev.clientX - startX) / scale);
       wrap.style.width = newW + 'px';
     }
     function onUp() {
@@ -1696,39 +3282,20 @@ function initImgResize(wrap, handle, img) {
   });
 }
 
-/* 點擊空白處取消選取 */
+/* 點擊空白處取消選取浮動元素 */
 document.addEventListener('mousedown', function(e) {
   if (!e.target.closest('.float-img-wrap')) {
     document.querySelectorAll('.float-img-wrap').forEach(function(w) { w.classList.remove('selected'); });
   }
+  if (!e.target.closest('.float-txt-wrap')) {
+    document.querySelectorAll('.float-txt-wrap').forEach(function(w) { w.classList.remove('selected'); });
+  }
 });
 
-/* ── Debug：印出第一頁 HTML 結構（開發用） ── */
-function debugPageHTML() {
-  var body = document.querySelector('.page-body');
-  if (!body) { alert('沒有頁面'); return; }
-  var out = '';
-  Array.from(body.childNodes).forEach(function(node, i) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      out += '[TEXT] "' + node.textContent.substring(0,30) + '"\n';
-    } else if (node.nodeType === Node.ELEMENT_NODE) {
-      var tag = node.tagName;
-      var style = node.getAttribute('style') || '';
-      var text = (node.innerText || '').substring(0,40).replace(/\n/g,'↵');
-      out += '[' + tag + '] style="' + style.substring(0,60) + '" text="' + text + '"\n';
-      /* 子節點 */
-      Array.from(node.childNodes).slice(0,3).forEach(function(c) {
-        if (c.nodeType === Node.ELEMENT_NODE) {
-          out += '  [' + c.tagName + '] style="' + (c.getAttribute('style')||'').substring(0,50) + '" text="' + (c.innerText||'').substring(0,30) + '"\n';
-        }
-      });
-    }
-  });
-  console.log(out);
-  alert('已印到 console（F12）\n前5行：\n' + out.split('\n').slice(0,5).join('\n'));
-}
 
 // Start
+_renderTextColors();
+_renderBgColors();
 addPage();
 </script>
 </body>
