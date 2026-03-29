@@ -316,7 +316,7 @@ body {
 }
 .page-body:focus-within { }
 .page-body:empty::before { content: '點此開始輸入...'; color: #ccc; pointer-events: none; }
-.page-body h1 { font-size:18pt; line-height:24pt; font-weight:bold; text-align:center; margin:0; font-family:'標楷體','BiauKai','DFKai-SB',serif; }
+.page-body h1 { font-size:18pt; line-height:24pt; font-weight:bold; margin:0; font-family:'標楷體','BiauKai','DFKai-SB',serif; }
 .page-body h2 { font-size:16pt; line-height:24pt; font-weight:bold; margin:0; font-family:'標楷體','BiauKai','DFKai-SB',serif; }
 .page-body p, .page-body div { font-size:14pt; line-height:24pt; margin:0; font-family:'標楷體','BiauKai','DFKai-SB',serif; }
 
@@ -682,6 +682,8 @@ function applyStyle(tag) {
       el.style.lineHeight = '24pt';
       el.style.fontFamily = "'標楷體','BiauKai','DFKai-SB',serif";
       el.style.fontWeight = (el.tagName==='H1'||el.tagName==='H2') ? 'bold' : 'normal';
+      if (el.tagName === 'H1') el.style.textAlign = 'center';
+      if (el.tagName === 'H2' || el.tagName === 'P') el.style.textAlign = el.style.textAlign || 'left';
     }
   }, 10);
 }
@@ -1422,17 +1424,36 @@ function makeParagraph(source, type) {
   if (runs.length === 0) runs = [new docx.TextRun({ text: '' })];
 
   /* 從 source 的 line-height inline style 讀取行距，預設 24pt
-     line 單位是 twentieths of a point（twip），24pt = 480 twip */
+     line 單位是 twentieths of a point（twip），24pt = 480 twip
+     若段落內有大字體（> 行距），改用 atLeast 避免文字被裁切 */
   var lineHStr = (source && source.style) ? parseStyleProp(source, 'lineHeight') : '';
   var linePt = lineHStr ? parseFloat(lineHStr) : 24;
   if (!linePt || linePt <= 0) linePt = 24;
   if (lineHStr && lineHStr.indexOf('px') > -1) linePt = Math.round(linePt * 0.75);
+
+  /* 掃描段落內最大字體（half-pt） */
+  var maxSzHp = getFontSizeHp(source);
+  if (source && source.querySelectorAll) {
+    source.querySelectorAll('span').forEach(function(sp) {
+      var spSz = getFontSizeHp(sp);
+      if (spSz > maxSzHp) maxSzHp = spSz;
+    });
+  }
+  var maxFontPt = maxSzHp / 2;
+
+  /* 若字體 > 行距，用 atLeast 讓 Word 自動擴展；否則用 exact 固定行距 */
+  var useExact = (maxFontPt <= linePt);
   var lineTwip = Math.round(linePt * 20); /* pt → twip */
 
   return new docx.Paragraph({
     children: runs,
     alignment: align,
-    spacing: { line: lineTwip, lineRule: 'exact', before: 0, after: 0 }
+    spacing: {
+      line: lineTwip,
+      lineRule: useExact ? 'exact' : 'atLeast',
+      before: 0,
+      after: 0
+    }
   });
 }
 
@@ -1491,9 +1512,26 @@ function makeDocxTable(tableEl, mmToTwip) {
         widthTwips = Math.round(parseFloat(wStyle) / 100 * 9360);
       }
 
+      /* 讀取 td 的 border style（判斷是否有邊框） */
+      var tdBorderStyle = td.style.border || td.style.borderTop || '';
+      var hasBorder = tdBorderStyle.indexOf('none') === -1; /* 預設有邊框 */
+      var borderDef = hasBorder ? {
+        top:    { style: 'single', size: 4, color: '000000' },
+        bottom: { style: 'single', size: 4, color: '000000' },
+        left:   { style: 'single', size: 4, color: '000000' },
+        right:  { style: 'single', size: 4, color: '000000' }
+      } : {
+        top:    { style: 'none' },
+        bottom: { style: 'none' },
+        left:   { style: 'none' },
+        right:  { style: 'none' }
+      };
+
       var cellOpts = {
         children: paragraphs,
-        columnSpan: colspan > 1 ? colspan : undefined
+        columnSpan: colspan > 1 ? colspan : undefined,
+        borders: borderDef,
+        margins: { top: 57, bottom: 57, left: 114, right: 114 }
       };
       if (widthTwips > 0) cellOpts.width = { size: widthTwips, type: 'dxa' };
 
