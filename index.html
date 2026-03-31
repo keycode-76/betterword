@@ -673,6 +673,7 @@ body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
     <button class="pn-tab active" id="tab-text" onclick="switchTab('text')">文字</button>
     <button class="pn-tab" id="tab-page" onclick="switchTab('page')">頁面</button>
     <button class="pn-tab" id="tab-margin" onclick="switchTab('margin')">邊距</button>
+    <button class="pn-tab" id="tab-about" onclick="switchTab('about')">說明</button>
   </div>
 
   <div id="panel-inner">
@@ -907,6 +908,77 @@ body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
       <div class="mg-note">Word 預設：上下 25.4mm／左右 31.7mm<br>版心寬 ≈ 148.6mm</div>
     </div>
 
+    <!-- ABOUT panel -->
+    <div id="pn-about" style="display:none;padding:12px 10px;overflow-y:auto;">
+      <div style="text-align:center;margin-bottom:14px;">
+        <div style="font-size:32px;line-height:1;">📄</div>
+        <div style="font-size:13px;font-weight:700;color:#111;margin-top:6px;letter-spacing:0.5px;">操作說明</div>
+        <div style="font-size:10px;color:#aaa;margin-top:2px;">申請計畫書編輯器 · 標楷體專用</div>
+      </div>
+
+      <div style="background:#f7f7f7;border-radius:8px;padding:10px 10px 8px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:8px;">🗂️ 側邊欄功能</div>
+        <div style="font-size:11px;color:#444;line-height:1;">
+          <div style="display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid #eee;">
+            <span style="font-size:13px;flex-shrink:0;">✏️</span>
+            <div><strong>文字</strong><br><span style="color:#888;font-size:10px;">字型（楷／黑／明）、大小、粗斜底線、對齊、顏色、行高、字距、插入標點、表格、文字塊、背景色塊</span></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid #eee;">
+            <span style="font-size:13px;flex-shrink:0;">📋</span>
+            <div><strong>頁面</strong><br><span style="color:#888;font-size:10px;">命名文件、新增／插入／刪除頁面、插入目錄頁、匯入 PDF、匯出 DOCX</span></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:6px;padding:5px 0;border-bottom:1px solid #eee;">
+            <span style="font-size:13px;flex-shrink:0;">📐</span>
+            <div><strong>邊距</strong><br><span style="color:#888;font-size:10px;">調整上下左右邊距（mm），預設為 Word 標準值</span></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:6px;padding:5px 0;">
+            <span style="font-size:13px;flex-shrink:0;">🔝</span>
+            <div><strong>頂部工具列</strong><br><span style="color:#888;font-size:10px;">開啟 HTML、儲存 HTML、下載 DOCX、插入圖片</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#f7f7f7;border-radius:8px;padding:10px 10px 8px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:8px;">⌨️ 快捷鍵</div>
+        <div style="font-size:11px;color:#444;line-height:1;">
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #eee;">
+            <span style="color:#888;">Tab</span><span>縮排</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #eee;">
+            <span style="color:#888;">Ctrl＋B / I / U</span><span>粗／斜／底線</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #eee;">
+            <span style="color:#888;">Ctrl＋Z / Y</span><span>復原／重做</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:3px 0;">
+            <span style="color:#888;">Ctrl＋A</span><span>全選</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#f7f7f7;border-radius:8px;padding:10px 10px 8px;margin-bottom:10px;">
+        <div style="font-size:10px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:8px;">📬 聯絡</div>
+        <div style="font-size:11px;color:#444;line-height:1.8;">
+          <div style="margin-bottom:4px;">
+            <a href="https://www.threads.com/@404chen_" target="_blank" style="color:#111;text-decoration:none;display:flex;align-items:center;gap:5px;">
+              <svg width="13" height="13" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M141.537 88.988a66.667 66.667 0 0 0-2.518-1.143c-1.482-27.307-16.403-42.94-41.457-43.1h-.34c-14.986 0-27.449 6.396-35.12 18.036l13.779 9.452c5.73-8.695 14.724-10.548 21.348-10.548h.229c8.249.053 14.474 2.452 18.503 7.129 2.932 3.405 4.893 8.111 5.864 14.05-7.314-1.243-15.224-1.626-23.68-1.14-23.82 1.371-39.134 15.264-38.105 34.568.522 9.792 5.4 18.216 13.735 23.719 7.047 4.652 16.124 6.927 25.557 6.412 12.458-.683 22.231-5.436 29.049-14.127 5.178-6.6 8.453-15.153 9.899-25.93 5.937 3.583 10.337 8.298 12.767 13.966 4.132 9.635 4.373 25.468-8.546 38.376-11.319 11.308-24.925 16.2-45.488 16.351-22.809-.169-40.06-7.484-51.275-21.742C35.236 139.966 29.808 120.682 29.605 96c.203-24.682 5.63-43.966 16.133-57.317C56.954 24.425 74.204 17.11 97.013 16.94c22.975.17 40.526 7.52 52.171 21.847 5.71 7.026 10.015 15.86 12.853 26.162l16.147-4.308c-3.44-12.68-8.853-23.606-16.219-32.668C147.036 9.607 125.202.195 97.07 0h-.113C68.882.195 47.292 9.642 32.788 28.08 19.882 44.485 13.224 67.315 13.001 95.932L13 96v.067c.224 28.617 6.882 51.447 19.788 67.854C47.292 182.358 68.882 191.805 96.957 192h.113c24.96-.173 42.554-6.708 57.048-21.189 18.963-18.945 18.392-42.692 12.142-57.27-4.484-10.454-13.033-18.945-24.723-24.553ZM98.44 129.507c-10.44.588-21.286-4.098-21.82-14.135-.397-7.442 5.296-15.746 22.461-16.735 1.966-.113 3.895-.169 5.79-.169 6.235 0 12.068.606 17.371 1.765-1.978 24.702-13.58 28.713-23.802 29.274Z" fill="currentColor"/></svg>
+              @Thread
+            </a>
+          </div>
+          <div>
+            <a href="mailto:404chenhavefun@gmail.com" style="color:#111;text-decoration:none;display:flex;align-items:center;gap:5px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M22 6 12 13 2 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              404chenhavefun@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:8px 10px;font-size:10px;color:#7a6000;line-height:1.6;">
+        📌 個人小工具，功能持續更新中。<br>遇到問題歡迎回報！
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -954,7 +1026,7 @@ var currentPanel = 'text';
 
 /* ── Tab switch ── */
 function switchTab(name) {
-  ['text','page','margin'].forEach(function(p) {
+  ['text','page','margin','about'].forEach(function(p) {
     document.getElementById('pn-' + p).style.display = 'none';
     document.getElementById('tab-' + p).classList.remove('active');
   });
@@ -1802,12 +1874,13 @@ function addPage(htmlContent) {
     });
   } else if (pageCount === 1) {
     body.innerHTML =
-      '<h1>計畫書名稱</h1><p><br></p>' +
-      '<h2>一、計畫緣起與目的</h2>' +
-      '<p>請在此輸入說明文字。字型採標楷體，大標18號、小標16號、內文14號，行距固定24點。</p><p><br></p>' +
-      '<h2>二、計畫目標</h2><p>請在此說明本計畫之具體目標與預期成果。</p><p><br></p>' +
-      '<h2>三、執行方式與策略</h2><p>請在此詳述執行方式、工作項目及推動策略。</p><p><br></p>' +
-      '<h2>四、預期效益</h2><p>請在此說明本計畫預期達成之效益及評估指標。</p>';
+      '<h1>一個自製的Word工具</h1><p><br></p>' +
+      '<h2>一、計畫緣起</h2>' +
+      '<p>申請計畫指定要標楷體，但我快被 Google 文件搞瘋了，自己搓了一個簡易版本的。</p><p><br></p>' +
+      '<h2>二、計畫目標</h2>' +
+      '<p>想要儲存的話請透過 HTML 儲存。有內建 DOCX 匯出功能，仍然在優化中，建議使用 HTML 儲存。</p><p><br></p>' +
+      '<h2>三、執行策略</h2><p>版本尚在優化，有想要的功能可以跟我說。</p><p><br></p>' +
+      '<h2>四、預期效益</h2><p>為特定計畫打造的工具，以降低申請門檻。</p>';
   } else {
     body.innerHTML = '<p><br></p>';
   }
@@ -2364,7 +2437,8 @@ function saveHTML() {
   var blob = new Blob([fullHTML], { type:'text/html;charset=utf-8' });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = '計畫書_' + getDateStr() + '.html';
+  var _htmlName = (document.getElementById('doc-name-input').value || '').trim() || '計畫書';
+  a.download = _htmlName + '.html';
   a.click();
   URL.revokeObjectURL(a.href);
   toast('已儲存');
@@ -3190,7 +3264,7 @@ function _doExportPDF() {
   if (pages.length === 0) { toast('沒有頁面可匯出'); return; }
 
   /* 取得文件名稱 */
-  var docName = (document.getElementById('doc-name-input').value || '文件').trim() || '文件';
+  var docName = (document.getElementById('doc-name-input').value || '').trim() || '計畫書';
 
   /* 暫時隱藏所有編輯控制項，避免截圖時出現 */
   var hideEls = document.querySelectorAll(
@@ -3438,7 +3512,8 @@ function _doExportDOCX() {
   docx.Packer.toBlob(doc).then(function(blob) {
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = '計畫書_' + getDateStr() + '.docx';
+    var _docxName = (document.getElementById('doc-name-input').value || '').trim() || '計畫書';
+    a.download = _docxName + '.docx';
     a.click();
     URL.revokeObjectURL(a.href);
     toast('已匯出 DOCX');
@@ -4148,6 +4223,7 @@ document.addEventListener('mousedown', function(e) {
 _renderTextColors();
 _renderBgColors();
 addPage();
+switchTab('about');
 </script>
 </body>
 </html>
