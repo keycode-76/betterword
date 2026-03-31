@@ -459,7 +459,13 @@ body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
   padding: 4px 8px;
   vertical-align: top;
   word-break: break-all;
+  min-width: 20px;
+  min-height: 1em;
 }
+.page-body table td:focus,
+.page-body table th:focus { outline: 2px solid #0078d4; outline-offset: -2px; }
+/* 選取中的儲存格 */
+.tbl-selected { background: rgba(0,120,212,0.08) !important; }
 
 /* margin grid */
 .mg-grid {
@@ -606,17 +612,19 @@ body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
   flex-shrink: 0; border-top: 1px solid #e8e8e8;
 }
 
+@page { margin: 0; size: 210mm 297mm; }
+
 @media print {
   #panel,#topbar,#status-bar,#add-page-wrap,#toast,#zoom-bar { display:none!important; }
   body { display:block; background:#fff; height:auto; overflow:visible; }
   #main { overflow:visible; }
   #scroll-area { overflow:visible; padding:0; background:#fff; }
   #zoom-wrapper { transform:none!important; display:block; }
-  .a4-page { box-shadow:none; margin:0 auto; page-break-after:always; width:210mm!important; min-height:297mm!important; border-radius:0; }
-  .a4-page.selected { box-shadow:none; }
+  .a4-page { box-shadow:none; margin:0 auto; page-break-after:always; width:210mm!important; min-height:297mm!important; border-radius:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; background-size:100% 100%!important; background-repeat:no-repeat!important; }
+  .a4-page.selected { box-shadow:none; outline:none!important; }
   .a4-page:last-of-type { page-break-after:avoid; }
   .page-guide { display:none!important; }
-  .page-body { padding-top:25.4mm!important; padding-bottom:25.4mm!important; padding-left:31.7mm!important; padding-right:31.7mm!important; min-height:0!important; }
+  .page-body { min-height:0!important; }
   .page-footer { bottom:7mm!important; }
   /* 列印時色塊正常顯示，隱藏編輯控制項 */
   .bg-block { pointer-events:none!important; outline:none!important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -626,6 +634,10 @@ body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
   .float-img-wrap .img-resize-handle,
   .float-img-wrap .img-delete-btn { display:none!important; }
   .float-img-wrap.selected { outline:none!important; }
+  /* 隱藏所有編輯游標與選取框線 */
+  [contenteditable] { outline:none!important; caret-color:transparent!important; }
+  .float-txt-wrap { outline:none!important; }
+  .float-txt-wrap.selected { outline:none!important; }
 }
 </style>
 </head>
@@ -641,7 +653,7 @@ body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
       開啟
       <input type="file" accept=".html,.docx" onchange="loadFile(event)" style="display:none;">
     </label>
-    <button class="act-btn" onclick="exportPDF()" title="匯出 PDF">
+    <button class="act-btn" onclick="printAsPDF()" title="列印為 PDF（向量文字，最接近編輯器）">
       <svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 3v9m0 0l-3-3m3 3l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M3 14h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       PDF
     </button>
@@ -749,6 +761,22 @@ body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
 
       <div class="pn-divider"></div>
 
+      <!-- 行高 -->
+      <div class="pn-sec-label">行高</div>
+      <div class="pn-row" style="align-items:center;">
+        <button class="ic" onmousedown="event.preventDefault()" onclick="adjustLineHeight(-1)" title="縮小行高" style="font-size:14px;flex-shrink:0;padding:6px 8px;">−</button>
+        <input id="line-height-val" type="number" value="24" step="1" min="8" max="200"
+          style="flex:1;min-width:0;padding:6px 4px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;text-align:center;background:#f5f5f5;"
+          onmousedown="event.preventDefault()"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();_restoreSel();applyLineHeight(parseFloat(this.value)||24);}"
+          onblur="_restoreSel();applyLineHeight(parseFloat(this.value)||24);"
+          title="行高 (pt)">
+        <span style="font-size:10px;color:#bbb;flex-shrink:0;padding:0 2px;">pt</span>
+        <button class="ic" onmousedown="event.preventDefault()" onclick="adjustLineHeight(1)" title="增大行高" style="font-size:14px;flex-shrink:0;padding:6px 8px;">＋</button>
+      </div>
+
+      <div class="pn-divider"></div>
+
       <!-- 字距 -->
       <div class="pn-sec-label">字距</div>
       <div class="pn-row" style="align-items:center;">
@@ -770,6 +798,30 @@ body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
         <button class="pn-btn" onclick="insertText('（')" title="左括">（</button>
         <button class="pn-btn" onclick="insertText('）')" title="右括">）</button>
         <button class="pn-btn" onclick="insertText('…')" title="省略">…</button>
+      </div>
+
+      <!-- 表格 -->
+      <div class="pn-sec-label" style="margin-top:8px;">表格</div>
+      <div class="pn-row" style="align-items:center;gap:4px;">
+        <span style="font-size:10px;color:#888;flex-shrink:0;">欄</span>
+        <input id="tbl-cols" type="number" value="3" min="1" max="20"
+          style="width:38px;padding:4px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;text-align:center;background:#f5f5f5;">
+        <span style="font-size:10px;color:#888;flex-shrink:0;">列</span>
+        <input id="tbl-rows" type="number" value="3" min="1" max="50"
+          style="width:38px;padding:4px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;text-align:center;background:#f5f5f5;">
+        <button class="pn-btn dark" onmousedown="event.preventDefault()" onclick="insertTable()" style="flex:1;font-size:12px;">⊞ 插入</button>
+      </div>
+      <div class="pn-row" style="gap:4px;margin-top:2px;">
+        <button class="pn-btn" onmousedown="event.preventDefault()" onclick="tableAddRow()" style="flex:1;font-size:11px;" title="在游標列下方新增一列">＋列</button>
+        <button class="pn-btn" onmousedown="event.preventDefault()" onclick="tableAddCol()" style="flex:1;font-size:11px;" title="在游標欄右方新增一欄">＋欄</button>
+        <button class="pn-btn" onmousedown="event.preventDefault()" onclick="tableDelRow()" style="flex:1;font-size:11px;" title="刪除游標所在列">−列</button>
+        <button class="pn-btn" onmousedown="event.preventDefault()" onclick="tableDelCol()" style="flex:1;font-size:11px;" title="刪除游標所在欄">−欄</button>
+      </div>
+      <div class="pn-row" style="gap:4px;margin-top:2px;">
+        <span style="font-size:10px;color:#888;flex-shrink:0;">框線</span>
+        <button class="pn-btn" onmousedown="event.preventDefault()" onclick="tableSetBorder(1)" style="flex:1;font-size:11px;">細</button>
+        <button class="pn-btn" onmousedown="event.preventDefault()" onclick="tableSetBorder(2)" style="flex:1;font-size:11px;">中</button>
+        <button class="pn-btn" onmousedown="event.preventDefault()" onclick="tableSetBorder(0)" style="flex:1;font-size:11px;">無</button>
       </div>
       <div class="pn-row" style="gap:5px;">
         <input id="link-url-input" type="url" placeholder="https://…"
@@ -828,6 +880,13 @@ body.bg-edit-mode .bg-block:hover .bg-block-del { display: block; }
       <div class="pn-row">
         <button class="pn-btn" onclick="insertTocPage()" style="width:100%;">📋 插入目錄頁</button>
       </div>
+      <div class="pn-sep"></div>
+      <div class="pn-title">匯入</div>
+      <div class="pn-row">
+        <button class="pn-btn" onclick="document.getElementById('pdf-import-input').click()" style="width:100%;">📄 匯入 PDF</button>
+        <input type="file" id="pdf-import-input" accept="application/pdf" style="display:none;" onchange="importPDF(event)">
+      </div>
+      <div id="pdf-import-status" style="display:none;font-size:11px;color:#666;text-align:center;padding:4px 0;"></div>
       <div class="pn-sep"></div>
       <div class="pn-title">匯出</div>
       <div class="pn-row">
@@ -1066,11 +1125,26 @@ document.addEventListener('selectionchange', function() {
     if (inBody || inFloatTxt) {
       // 儲存選取範圍
       _saveSel();
+
+      var cs = window.getComputedStyle(node);
+
       // 字體大小顯示
-      var fsPx = parseFloat(window.getComputedStyle(node).fontSize);
+      var fsPx = parseFloat(cs.fontSize);
       var fsPt = fsPx ? Math.round(fsPx / 1.3333) : '';
-      var inp = document.getElementById('font-size-custom');
-      if (inp && document.activeElement !== inp) inp.value = fsPt || '';
+      var fsInp = document.getElementById('font-size-custom');
+      if (fsInp && document.activeElement !== fsInp) fsInp.value = fsPt || '';
+
+      // 行高顯示
+      var lhInp = document.getElementById('line-height-val');
+      if (lhInp && document.activeElement !== lhInp) {
+        var lhRaw = cs.lineHeight;
+        var lhPt = '';
+        if (lhRaw && lhRaw !== 'normal') {
+          var lhPx = parseFloat(lhRaw);
+          lhPt = lhPx ? Math.round(lhPx / 1.3333) : '';
+        }
+        lhInp.value = lhPt || 24;
+      }
     }
   } catch(e) {}
 });
@@ -1217,6 +1291,70 @@ function addBgBlock(color, opts) {
   });
 
   page.appendChild(block);
+}
+
+/* ── Image Blocks collect / restore ── */
+function collectImgBlocks() {
+  var imgs = [];
+  var allPages = document.querySelectorAll('.a4-page');
+  document.querySelectorAll('.float-img-wrap').forEach(function(wrap) {
+    var pageIndex = 0;
+    allPages.forEach(function(p, i) { if (p.contains(wrap)) pageIndex = i; });
+    var img = wrap.querySelector('img');
+    imgs.push({
+      src:       img ? img.src : '',
+      x:         parseFloat(wrap.style.left)  || 0,
+      y:         parseFloat(wrap.style.top)   || 0,
+      w:         parseFloat(wrap.style.width) || 200,
+      pageIndex: pageIndex
+    });
+  });
+  return imgs;
+}
+
+function restoreImgBlocks(imgs) {
+  if (!imgs || !imgs.length) return;
+  var allPages = document.querySelectorAll('.a4-page');
+  imgs.forEach(function(data) {
+    var page = allPages[data.pageIndex] || allPages[allPages.length - 1];
+    if (!page) return;
+
+    var wrap = document.createElement('div');
+    wrap.className   = 'float-img-wrap';
+    wrap.style.left  = data.x + 'px';
+    wrap.style.top   = data.y + 'px';
+    wrap.style.width = data.w + 'px';
+
+    var img = document.createElement('img');
+    img.src           = data.src;
+    img.style.width   = '100%';
+    img.draggable     = false;
+
+    var resizeHandle = document.createElement('div');
+    resizeHandle.className = 'img-resize-handle';
+
+    var delBtn = document.createElement('button');
+    delBtn.className   = 'img-delete-btn';
+    delBtn.textContent = '×';
+    delBtn.title       = '刪除圖片';
+    delBtn.addEventListener('mousedown', function(e) {
+      e.stopPropagation();
+      wrap.parentNode.removeChild(wrap);
+    });
+
+    wrap.appendChild(img);
+    wrap.appendChild(resizeHandle);
+    wrap.appendChild(delBtn);
+
+    wrap.addEventListener('mousedown', function() {
+      document.querySelectorAll('.float-img-wrap').forEach(function(w) { w.classList.remove('selected'); });
+      wrap.classList.add('selected');
+    });
+
+    page.appendChild(wrap);
+    initImgDrag(wrap);
+    initImgResize(wrap, resizeHandle, img);
+  });
 }
 
 function collectBgBlocks() {
@@ -1589,9 +1727,6 @@ function _buildPageElement(htmlContent) {
 
   body.innerHTML = (htmlContent !== undefined && htmlContent !== null) ? htmlContent : '<p><br></p>';
 
-  /* 還原浮動文字框事件 */
-  body.querySelectorAll('.float-txt-wrap').forEach(function(wrap) { _bindFloatTxt(wrap); });
-
   body.addEventListener('input', function() { updateStatus(); checkOverflow(body); });
   body.addEventListener('keydown', function(e) {
     if (e.key === 'Tab') { e.preventDefault(); _handleTab(e); }
@@ -1771,6 +1906,165 @@ document.addEventListener('selectionchange', function() {
 
 /* ── Insert text ── */
 function insertText(ch) { document.execCommand('insertText', false, ch); }
+
+/* ══════════════════════════════
+   TABLE
+══════════════════════════════ */
+function _makeCell(tag) {
+  var td = document.createElement(tag || 'td');
+  td.contentEditable = 'true';
+  td.innerHTML = '<br>';
+  return td;
+}
+
+function insertTable() {
+  var cols = Math.max(1, parseInt(document.getElementById('tbl-cols').value) || 3);
+  var rows = Math.max(1, parseInt(document.getElementById('tbl-rows').value) || 3);
+
+  _restoreSel();
+  var sel = window.getSelection();
+  if (!sel || !sel.rangeCount) { toast('請先點擊頁面文字區再插入表格'); return; }
+
+  var table = document.createElement('table');
+  table.style.cssText = 'border-collapse:collapse;width:100%;table-layout:fixed;margin:4pt 0;';
+
+  var colW = Math.round(10000 / cols) / 100;
+  var colgroup = document.createElement('colgroup');
+  for (var c = 0; c < cols; c++) {
+    var col = document.createElement('col');
+    col.style.width = colW + '%';
+    colgroup.appendChild(col);
+  }
+  table.appendChild(colgroup);
+
+  var tbody = document.createElement('tbody');
+  for (var r = 0; r < rows; r++) {
+    var tr = document.createElement('tr');
+    for (var cc = 0; cc < cols; cc++) {
+      var td = _makeCell('td');
+      td.style.border = '1px solid #000';
+      td.style.padding = '4px 8px';
+      td.style.verticalAlign = 'top';
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+
+  // 插入到游標位置
+  var range = sel.getRangeAt(0);
+  range.deleteContents();
+  range.insertNode(table);
+
+  // 游標移到第一格
+  var firstTd = table.querySelector('td');
+  if (firstTd) {
+    firstTd.focus();
+    var r2 = document.createRange();
+    r2.setStart(firstTd, 0);
+    r2.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r2);
+  }
+  toast('表格已插入');
+}
+
+/* 取得游標所在的 td/th */
+function _getCaretCell() {
+  var sel = window.getSelection();
+  if (!sel || !sel.rangeCount) return null;
+  var node = sel.getRangeAt(0).startContainer;
+  if (node.nodeType === 3) node = node.parentElement;
+  while (node && node.tagName !== 'TD' && node.tagName !== 'TH') node = node.parentElement;
+  return (node && (node.tagName === 'TD' || node.tagName === 'TH')) ? node : null;
+}
+
+function _getCaretTable() {
+  var cell = _getCaretCell();
+  if (!cell) return null;
+  return cell.closest('table');
+}
+
+function tableAddRow() {
+  var cell = _getCaretCell();
+  if (!cell) { toast('請先點擊表格儲存格'); return; }
+  var tr   = cell.parentElement;
+  var cols = tr.cells.length;
+  var newTr = document.createElement('tr');
+  for (var i = 0; i < cols; i++) {
+    var td = _makeCell('td');
+    td.style.cssText = tr.cells[i].style.cssText;
+    td.style.border  = tr.cells[i].style.border || '1px solid #000';
+    newTr.appendChild(td);
+  }
+  tr.parentElement.insertBefore(newTr, tr.nextSibling);
+  newTr.cells[0].focus();
+  toast('已新增列');
+}
+
+function tableAddCol() {
+  var tbl = _getCaretTable();
+  var cell = _getCaretCell();
+  if (!tbl || !cell) { toast('請先點擊表格儲存格'); return; }
+  var colIdx = cell.cellIndex;
+  tbl.querySelectorAll('tr').forEach(function(tr) {
+    var ref = tr.cells[colIdx];
+    var td  = _makeCell(ref ? ref.tagName.toLowerCase() : 'td');
+    td.style.cssText = ref ? ref.style.cssText : '';
+    td.style.border  = ref ? (ref.style.border || '1px solid #000') : '1px solid #000';
+    td.style.padding = '4px 8px';
+    td.style.verticalAlign = 'top';
+    if (ref && ref.nextSibling) tr.insertBefore(td, ref.nextSibling);
+    else tr.appendChild(td);
+  });
+  // 更新 colgroup
+  var colgroup = tbl.querySelector('colgroup');
+  if (colgroup) {
+    var newCol = document.createElement('col');
+    var cols = tbl.querySelectorAll('col').length + 1;
+    var colW = Math.round(10000 / cols) / 100 + '%';
+    tbl.querySelectorAll('col').forEach(function(c) { c.style.width = colW; });
+    var refCol = colgroup.children[colIdx];
+    if (refCol && refCol.nextSibling) colgroup.insertBefore(newCol, refCol.nextSibling);
+    else colgroup.appendChild(newCol);
+    newCol.style.width = colW;
+  }
+  toast('已新增欄');
+}
+
+function tableDelRow() {
+  var cell = _getCaretCell();
+  if (!cell) { toast('請先點擊表格儲存格'); return; }
+  var tr  = cell.parentElement;
+  var tbl = tr.closest('table');
+  if (tbl.querySelectorAll('tr').length <= 1) { tbl.parentNode.removeChild(tbl); toast('表格已刪除'); return; }
+  tr.parentNode.removeChild(tr);
+  toast('已刪除列');
+}
+
+function tableDelCol() {
+  var cell = _getCaretCell();
+  var tbl  = _getCaretTable();
+  if (!cell || !tbl) { toast('請先點擊表格儲存格'); return; }
+  var colIdx = cell.cellIndex;
+  var rows = tbl.querySelectorAll('tr');
+  if (rows[0] && rows[0].cells.length <= 1) { tbl.parentNode.removeChild(tbl); toast('表格已刪除'); return; }
+  rows.forEach(function(tr) {
+    if (tr.cells[colIdx]) tr.deleteCell(colIdx);
+  });
+  var cols = tbl.querySelectorAll('col');
+  if (cols[colIdx]) cols[colIdx].parentNode.removeChild(cols[colIdx]);
+  toast('已刪除欄');
+}
+
+function tableSetBorder(px) {
+  var tbl = _getCaretTable();
+  if (!tbl) { toast('請先點擊表格儲存格'); return; }
+  var style = px > 0 ? px + 'px solid #000' : 'none';
+  tbl.querySelectorAll('td,th').forEach(function(cell) {
+    cell.style.border = style;
+  });
+}
 
 /* ── 插入超連結 ── */
 function insertLink() {
@@ -1972,6 +2266,8 @@ function collectFloatTexts() {
   var result = [];
   document.querySelectorAll('.a4-page').forEach(function(page, pi) {
     page.querySelectorAll('.float-txt-wrap').forEach(function(wrap) {
+      // 只收集直接掛在 .a4-page 下的（排除在 page-body 內的舊格式）
+      if (wrap.parentElement !== page) return;
       var body = wrap.querySelector('.float-txt-body');
       result.push({
         page:     pi,
@@ -2037,6 +2333,7 @@ function saveHTML() {
       right:  parseFloat(document.getElementById('mg-right').value)  || 31.7
     },
     bgBlocks:   collectBgBlocks(),
+    imgBlocks:  collectImgBlocks(),
     floatTexts: collectFloatTexts(),
     docName:    (document.getElementById('doc-name-input') || {}).value || '',
     textColors: _textColors.slice(),
@@ -2054,6 +2351,7 @@ function saveHTML() {
     '    if(mg){document.getElementById("mg-top").value=mg.top;document.getElementById("mg-bottom").value=mg.bottom;document.getElementById("mg-left").value=mg.left;document.getElementById("mg-right").value=mg.right;applyMargins();}\n' +
     '    EDITOR_STATE.pages.forEach(function(h){addPage(h);});\n' +
     '    if(EDITOR_STATE.bgBlocks){restoreBgBlocks(EDITOR_STATE.bgBlocks);}\n' +
+    '    if(EDITOR_STATE.imgBlocks){restoreImgBlocks(EDITOR_STATE.imgBlocks);}\n' +
     '    if(EDITOR_STATE.docName){var ni=document.getElementById("doc-name-input");if(ni){ni.value=EDITOR_STATE.docName;updateDocName(EDITOR_STATE.docName);}}\n' +
     '    if(EDITOR_STATE.textColors){_textColors=EDITOR_STATE.textColors;_renderTextColors();}\n' +
     '    if(EDITOR_STATE.bgColors){_bgColors=EDITOR_STATE.bgColors;_renderBgColors();}\n' +
@@ -2062,7 +2360,7 @@ function saveHTML() {
     '});\n' +
     '<\/script>\n';
   fullHTML = fullHTML.replace('</body>', inject + '</body>');
-  fullHTML = fullHTML.replace(/\/\/ Start[\s\S]{0,30}addPage\(\);/, '// Start — replaced by saved data');
+  fullHTML = fullHTML.replace(/\/\/ Start[\s\S]{0,200}addPage\(\);/, '// Start — replaced by saved data');
   var blob = new Blob([fullHTML], { type:'text/html;charset=utf-8' });
   var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -2134,7 +2432,7 @@ function wColor(v) {
 }
 
 /* 解析單一 <w:p> → HTML 字串 */
-function parseWParagraph(wp, styleMap) {
+function parseWParagraph(wp, styleMap, b64Map) {
   /* ── 段落屬性 pPr ── */
   var pPr    = wp.getElementsByTagNameNS('*','pPr')[0] || null;
   var jcEl   = pPr ? pPr.getElementsByTagNameNS('*','jc')[0]  : null;
@@ -2184,23 +2482,92 @@ function parseWParagraph(wp, styleMap) {
     return '<span style="' + styles.join(';') + '">' + safe + '</span>';
   }
 
-  /* ── 按順序遍歷段落直接子節點，處理 r / br / hyperlink ── */
+  /* ── EMU → px（96dpi：1 inch = 914400 EMU = 96px） ── */
+  function emuToPx(emu) { return Math.round(parseInt(emu) / 9525); }
+
+  /* ── 從 <w:drawing> 取出圖片 HTML ── */
+  function renderDrawing(drawingNode) {
+    if (!b64Map) return '';
+
+    /* 判斷是 inline 還是 anchor */
+    var inlineEl = drawingNode.getElementsByTagNameNS('*', 'inline')[0] || null;
+    var anchorEl = drawingNode.getElementsByTagNameNS('*', 'anchor')[0] || null;
+    var container = inlineEl || anchorEl;
+    if (!container) return '';
+
+    /* 取得 rId */
+    var rId = '';
+    var blips = container.getElementsByTagNameNS('*', 'blip');
+    for (var bi = 0; bi < blips.length; bi++) {
+      rId = blips[bi].getAttribute('r:embed') || blips[bi].getAttribute('embed') || '';
+      if (rId) break;
+    }
+    if (!rId) {
+      var imgDatas = container.getElementsByTagNameNS('*', 'imagedata');
+      for (var id2 = 0; id2 < imgDatas.length; id2++) {
+        rId = imgDatas[id2].getAttribute('r:id') || imgDatas[id2].getAttribute('id') || '';
+        if (rId) break;
+      }
+    }
+    if (!rId || !b64Map[rId]) return '';
+
+    /* 取得尺寸 */
+    var extEl = container.getElementsByTagNameNS('*', 'ext')[0];
+    var cx = extEl ? extEl.getAttribute('cx') : '0';
+    var cy = extEl ? extEl.getAttribute('cy') : '0';
+    var wPx = cx ? emuToPx(cx) : 200;
+    var hPx = cy ? emuToPx(cy) : 0;
+
+    /* ── inline：行內圖片 ── */
+    if (inlineEl) {
+      var styleStr = 'max-width:100%;display:block;';
+      if (wPx) styleStr += 'width:' + wPx + 'px;';
+      if (hPx) styleStr += 'height:' + hPx + 'px;';
+      return '<img src="' + b64Map[rId] + '" style="' + styleStr + '">';
+    }
+
+    /* ── anchor：浮動圖片，轉為 float-img-wrap ──
+       positionH/positionV 的 posOffset 單位也是 EMU */
+    var posHEl = anchorEl.getElementsByTagNameNS('*', 'positionH')[0];
+    var posVEl = anchorEl.getElementsByTagNameNS('*', 'positionV')[0];
+    var posHOff = posHEl ? posHEl.getElementsByTagNameNS('*', 'posOffset')[0] : null;
+    var posVOff = posVEl ? posVEl.getElementsByTagNameNS('*', 'posOffset')[0] : null;
+
+    /* 頁面內容區寬度約 554px（A4 794px - 左右邊距 120px×2），用於相對定位 */
+    var leftPx = posHOff ? emuToPx(posHOff.textContent) : 20;
+    var topPx  = posVOff ? emuToPx(posVOff.textContent) : 20;
+
+    /* 收集到 _pendingAnchorImgs，由呼叫端在頁面建立後插入 .a4-page */
+    if (!parseWParagraph._pendingAnchors) parseWParagraph._pendingAnchors = [];
+    parseWParagraph._pendingAnchors.push({
+      src: b64Map[rId], left: leftPx, top: topPx, width: wPx, height: hPx
+    });
+    return ''; /* anchor 圖片不佔行內位置 */
+  }
+
+  /* ── 按順序遍歷段落直接子節點，處理 r / br / hyperlink / drawing ── */
   var innerHtml = '';
   for (var ci = 0; ci < wp.childNodes.length; ci++) {
     var child = wp.childNodes[ci];
     var ln = child.localName;
     if (ln === 'r') {
-      innerHtml += renderRun(child);
+      /* run 裡可能有 <w:drawing> 或 <w:pict> */
+      var drawings = child.getElementsByTagNameNS('*', 'drawing');
+      var picts    = child.getElementsByTagNameNS('*', 'pict');
+      if (drawings.length > 0) {
+        innerHtml += renderDrawing(drawings[0]);
+      } else if (picts.length > 0) {
+        innerHtml += renderDrawing(picts[0]);
+      } else {
+        innerHtml += renderRun(child);
+      }
     } else if (ln === 'br') {
-      /* 段落內強制換行 */
       innerHtml += '<br>';
     } else if (ln === 'hyperlink') {
-      /* 超連結：取出裡面的 run */
       for (var hi = 0; hi < child.childNodes.length; hi++) {
         if (child.childNodes[hi].localName === 'r') innerHtml += renderRun(child.childNodes[hi]);
       }
     } else if (ln === 'ins' || ln === 'del') {
-      /* 追蹤修訂：取出裡面的 run */
       for (var ii = 0; ii < child.childNodes.length; ii++) {
         if (child.childNodes[ii].localName === 'r') innerHtml += renderRun(child.childNodes[ii]);
       }
@@ -2381,11 +2748,70 @@ function loadDOCX(file, event) {
   function doLoad() {
     var reader = new FileReader();
     reader.onload = function(e) {
-      JSZip.loadAsync(e.target.result).then(function(zip) {
-        var xmlFile = zip.file('word/document.xml');
+      var zipPromise = JSZip.loadAsync(e.target.result);
+
+      /* 同時讀取 document.xml 與 rels 檔案 */
+      zipPromise.then(function(zip) {
+        var xmlFile  = zip.file('word/document.xml');
+        var relsFile = zip.file('word/_rels/document.xml.rels');
         if (!xmlFile) { toast('無法讀取 document.xml'); return; }
-        return xmlFile.async('string');
-      }).then(function(xmlStr) {
+
+        var xmlP  = xmlFile.async('string');
+        var relsP = relsFile ? relsFile.async('string') : Promise.resolve('');
+
+        return Promise.all([xmlP, relsP, Promise.resolve(zip)]);
+      }).then(function(results) {
+        var xmlStr  = results[0];
+        var relsStr = results[1];
+        var zip     = results[2];
+
+        /* ── 解析 rels，建立 rId → 媒體路徑 對照表 ── */
+        var rIdMap = {};
+        if (relsStr) {
+          var relsDoc = new DOMParser().parseFromString(relsStr, 'application/xml');
+          var rels = relsDoc.getElementsByTagName('Relationship');
+          for (var ri = 0; ri < rels.length; ri++) {
+            var rel  = rels[ri];
+            var type = rel.getAttribute('Type') || '';
+            var id   = rel.getAttribute('Id')   || '';
+            var tgt  = rel.getAttribute('Target') || '';
+            if (type.indexOf('image') !== -1 && id && tgt) {
+              /* Target 可能是 media/image1.png 或 ../media/image1.png */
+              var path = tgt.replace(/^\.\.\//, 'word/');
+              if (!tgt.startsWith('word/') && !tgt.startsWith('../')) {
+                path = 'word/' + tgt;
+              }
+              rIdMap[id] = path;
+            }
+          }
+        }
+
+        /* ── 預先載入所有圖片為 Base64 ── */
+        var imgIds   = Object.keys(rIdMap);
+        var imgLoads = imgIds.map(function(id) {
+          var path = rIdMap[id];
+          var f = zip.file(path);
+          if (!f) return Promise.resolve([id, null]);
+          return f.async('base64').then(function(b64) {
+            /* 從副檔名判斷 MIME type */
+            var ext  = path.split('.').pop().toLowerCase();
+            var mime = { png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg',
+                         gif:'image/gif', bmp:'image/bmp', webp:'image/webp',
+                         tiff:'image/tiff', tif:'image/tiff', emf:'image/x-emf',
+                         wmf:'image/x-wmf', svg:'image/svg+xml' }[ext] || 'image/png';
+            return [id, 'data:' + mime + ';base64,' + b64];
+          });
+        });
+
+        return Promise.all(imgLoads).then(function(pairs) {
+          var b64Map = {};
+          pairs.forEach(function(p) { if (p[1]) b64Map[p[0]] = p[1]; });
+          return [xmlStr, b64Map];
+        });
+      }).then(function(results) {
+        var xmlStr = results[0];
+        var b64Map = results[1];
+
         var parser = new DOMParser();
         var xmlDoc = parser.parseFromString(xmlStr, 'application/xml');
 
@@ -2416,26 +2842,87 @@ function loadDOCX(file, event) {
           return false;
         }
 
+        /* 每頁對應的 anchor 圖片清單 */
+        var anchorsByPage = [];
+
         var children = body.childNodes;
         for (var i = 0; i < children.length; i++) {
           var node = children[i];
           if (node.localName === 'p') {
+            /* 清除上一段留下的 pending anchors */
+            parseWParagraph._pendingAnchors = [];
             if (hasPageBreak(node)) {
-              /* 分頁符號：先把目前頁面存起來，開新頁 */
               flushPage();
             } else {
-              currentPage.push(parseWParagraph(node));
+              currentPage.push(parseWParagraph(node, null, b64Map));
+              /* 收集本段產生的 anchor 圖片，歸屬到目前頁 */
+              if (parseWParagraph._pendingAnchors && parseWParagraph._pendingAnchors.length) {
+                var pageIdx = pages.length; /* 目前尚未 flush，所以是下一頁的 index */
+                if (!anchorsByPage[pageIdx]) anchorsByPage[pageIdx] = [];
+                parseWParagraph._pendingAnchors.forEach(function(a) {
+                  anchorsByPage[pageIdx].push(a);
+                });
+                parseWParagraph._pendingAnchors = [];
+              }
             }
           } else if (node.localName === 'tbl') {
             currentPage.push(parseWTable(node));
           }
         }
-        flushPage(); /* 最後一頁 */
+        flushPage();
 
         if (pages.length === 0) { toast('文件是空的'); return; }
         document.getElementById('pages-container').innerHTML = '';
         pageCount = 0;
-        pages.forEach(function(html) { addPage(html); });
+        pages.forEach(function(html, pi) {
+          addPage(html);
+          /* 插入 anchor 浮動圖片到對應頁面 */
+          var anchors = anchorsByPage[pi];
+          if (!anchors || !anchors.length) return;
+          var allPages = document.querySelectorAll('.a4-page');
+          var pageEl   = allPages[allPages.length - 1];
+          if (!pageEl) return;
+          anchors.forEach(function(a) {
+            var wrap = document.createElement('div');
+            wrap.className = 'float-img-wrap';
+            wrap.style.position = 'absolute';
+            wrap.style.left     = a.left + 'px';
+            wrap.style.top      = a.top  + 'px';
+            wrap.style.width    = a.width + 'px';
+            wrap.style.zIndex   = '10';
+
+            var img = document.createElement('img');
+            img.src = a.src;
+            img.style.width    = '100%';
+            img.style.display  = 'block';
+            if (a.height) img.style.height = a.height + 'px';
+
+            var delBtn = document.createElement('button');
+            delBtn.className   = 'img-delete-btn';
+            delBtn.textContent = '×';
+            delBtn.title       = '刪除圖片';
+            delBtn.addEventListener('mousedown', function(e) {
+              e.stopPropagation();
+              wrap.parentNode.removeChild(wrap);
+            });
+
+            var resizeHandle = document.createElement('div');
+            resizeHandle.className = 'img-resize-handle';
+
+            wrap.appendChild(img);
+            wrap.appendChild(delBtn);
+            wrap.appendChild(resizeHandle);
+            pageEl.appendChild(wrap);
+
+            /* 綁定拖曳與縮放 */
+            wrap.addEventListener('mousedown', function() {
+              document.querySelectorAll('.float-img-wrap').forEach(function(w) { w.classList.remove('selected'); });
+              wrap.classList.add('selected');
+            });
+            initImgDrag(wrap);
+            initImgResize(wrap, resizeHandle, img);
+          });
+        });
         toast('已載入 DOCX，共 ' + pages.length + ' 頁');
       }).catch(function(err) { toast('DOCX 解析失敗：' + err.message); });
       if (event) event.target.value = '';
@@ -2494,6 +2981,7 @@ function loadHTML(event) {
         /* 還原色塊、文字塊、顏色、文件名稱 */
         if (state) {
           if (state.bgBlocks)   restoreBgBlocks(state.bgBlocks);
+          if (state.imgBlocks)  restoreImgBlocks(state.imgBlocks);
           if (state.floatTexts) restoreFloatTexts(state.floatTexts);
           if (state.docName) {
             var ni = document.getElementById('doc-name-input');
@@ -2519,42 +3007,332 @@ function getDateStr() {
 }
 function p2(n) { return n < 10 ? '0'+n : ''+n; }
 
-/* ── PDF Export ── */
-function exportPDF() {
-  document.querySelectorAll('.page-body').forEach(function(b) { b.contentEditable='false'; });
-  var ml = parseFloat(document.getElementById('mg-left').value)   || 31.7;
-  var mr = parseFloat(document.getElementById('mg-right').value)  || 31.7;
-  var mt = parseFloat(document.getElementById('mg-top').value)    || 25.4;
-  var mb = parseFloat(document.getElementById('mg-bottom').value) || 25.4;
-  var s = document.createElement('style');
-  s.id = '__ps__';
-  s.textContent =
-    '@page{size:A4 portrait;margin:0}' +
-    '@media print{' +
-    'html,body{width:210mm;background:#fff;display:block;height:auto;overflow:visible}' +
-    '#panel,#topbar,#status-bar,#add-page-wrap,#toast,#zoom-bar{display:none!important}' +
-    '#main,#scroll-area{overflow:visible!important}' +
-    '#scroll-area{background:#fff!important;padding:0!important}' +
-    '#zoom-wrapper{transform:none!important;display:block}' +
-    '.a4-page{box-shadow:none!important;margin:0 auto!important;page-break-after:always;width:210mm!important;min-height:297mm!important;border-radius:0!important}' +
-    '.a4-page.selected{box-shadow:none!important}' +
-    '.a4-page:last-of-type{page-break-after:avoid}' +
-    '.page-guide{display:none!important}' +
-    '.page-body{padding-top:'+mt+'mm!important;padding-bottom:'+mb+'mm!important;padding-left:'+ml+'mm!important;padding-right:'+mr+'mm!important;min-height:0!important}' +
-    '.page-footer{bottom:7mm!important}' +
-    '.float-txt-wrap .float-txt-resize,.float-txt-wrap .float-txt-del{display:none!important}' +
-    '.float-txt-wrap.selected{outline:none!important}' +
-    '.float-txt-wrap{-webkit-print-color-adjust:exact;print-color-adjust:exact}' +
-    '}';
-  document.head.appendChild(s);
+/* ── PDF Import ── */
+var _pdfJsLoaded = false;
+
+function _loadPdfJs(callback) {
+  if (_pdfJsLoaded) { callback(); return; }
+  var script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+  script.onload = function() {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    _pdfJsLoaded = true;
+    callback();
+  };
+  script.onerror = function() { alert('PDF.js 載入失敗，請確認網路連線。'); };
+  document.head.appendChild(script);
+}
+
+function importPDF(event) {
+  var file = event.target.files[0];
+  event.target.value = '';          /* 允許重複選同一檔案 */
+  if (!file) return;
+
+  var statusEl = document.getElementById('pdf-import-status');
+  statusEl.style.display = 'block';
+  statusEl.textContent = '載入 PDF.js…';
+
+  _loadPdfJs(function() {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var typedArray = new Uint8Array(e.target.result);
+      pdfjsLib.getDocument({ data: typedArray }).promise.then(function(pdf) {
+        var totalPages = Math.min(pdf.numPages, 20);
+        if (pdf.numPages > 20) {
+          alert('PDF 共 ' + pdf.numPages + ' 頁，僅匯入前 20 頁。');
+        }
+
+        var rendered = 0;
+        var canvases = new Array(totalPages);
+
+        function renderPage(pageNum) {
+          pdf.getPage(pageNum).then(function(page) {
+            /* 以 794px 寬（A4 編輯器寬度）為基準計算縮放比例 */
+            var viewport = page.getViewport({ scale: 1 });
+            var scale    = 794 / viewport.width;
+            var scaledVp = page.getViewport({ scale: scale });
+
+            var canvas  = document.createElement('canvas');
+            canvas.width  = Math.round(scaledVp.width);
+            canvas.height = Math.round(scaledVp.height);
+
+            var ctx = canvas.getContext('2d');
+            page.render({ canvasContext: ctx, viewport: scaledVp }).promise.then(function() {
+              canvases[pageNum - 1] = canvas.toDataURL('image/jpeg', 0.92);
+              rendered++;
+              statusEl.textContent = '渲染中… ' + rendered + ' / ' + totalPages;
+
+              if (rendered === totalPages) {
+                statusEl.textContent = '插入頁面中…';
+                _insertPdfPages(canvases, function() {
+                  statusEl.textContent = '匯入完成！共 ' + totalPages + ' 頁';
+                  setTimeout(function() { statusEl.style.display = 'none'; }, 2500);
+                });
+              }
+            });
+          });
+        }
+
+        for (var i = 1; i <= totalPages; i++) { renderPage(i); }
+      }).catch(function(err) {
+        statusEl.style.display = 'none';
+        alert('PDF 讀取失敗：' + err.message);
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function _insertPdfPages(dataUrls, onDone) {
+  /* 依序插入，避免 addPage 的 pageCount 競爭 */
+  var idx = 0;
+  function next() {
+    if (idx >= dataUrls.length) { updateStatus(); if (onDone) onDone(); return; }
+    var dataUrl = dataUrls[idx++];
+
+    /* 建立頁面 */
+    addPage('');   /* 先建空頁，取得剛建立的最後一頁 */
+    var allPages = document.querySelectorAll('.a4-page');
+    var page     = allPages[allPages.length - 1];
+
+    /* 設定全頁背景圖 */
+    page.style.backgroundImage    = 'url(' + dataUrl + ')';
+    page.style.backgroundSize     = '100% 100%';
+    page.style.backgroundRepeat   = 'no-repeat';
+    page.style.backgroundPosition = 'center center';
+
+    /* 調整 page-body 高度以符合圖片比例 */
+    var img = new Image();
+    img.onload = function() {
+      var ratio = img.naturalHeight / img.naturalWidth;
+      var h     = Math.round(794 * ratio);
+      page.style.minHeight = h + 'px';
+      /* 讓 page-body 透明，不遮住背景 */
+      var body = page.querySelector('.page-body');
+      if (body) {
+        body.style.background = 'transparent';
+        body.style.minHeight  = h + 'px';
+      }
+      next();
+    };
+    img.src = dataUrl;
+  }
+  next();
+}
+
+/* ── Print as PDF（瀏覽器原生列印，向量文字，最接近編輯器顯示） ── */
+function printAsPDF() {
+  var pages = document.querySelectorAll('.a4-page');
+  if (!pages.length) { toast('沒有頁面可列印'); return; }
+
+  /* 1. 暫存並清除所有選取狀態 */
+  var selPage = document.querySelector('.a4-page.selected');
+  var selImg  = document.querySelector('.float-img-wrap.selected');
+  var selTxt  = document.querySelector('.float-txt-wrap.selected');
+  if (selPage) selPage.classList.remove('selected');
+  if (selImg)  selImg.classList.remove('selected');
+  if (selTxt)  selTxt.classList.remove('selected');
+
+  /* 2. 暫時關閉 contenteditable（避免列印時出現游標/選取框） */
+  var editables = document.querySelectorAll('[contenteditable]');
+  editables.forEach(function(el) { el.setAttribute('data-ce-bak', el.getAttribute('contenteditable')); el.removeAttribute('contenteditable'); });
+
+  /* 3. 注入動態 @page 規則（無邊距，讓頁面自己控制 padding） */
+  var styleEl = document.createElement('style');
+  styleEl.id = '_print-override';
+  styleEl.textContent = '@page { margin: 0; size: 210mm 297mm; }';
+  document.head.appendChild(styleEl);
+
+  /* 4. 列印 */
+  toast('開啟列印對話框…請選擇「另存為 PDF」');
   setTimeout(function() {
     window.print();
-    setTimeout(function() {
-      var old = document.getElementById('__ps__');
-      if (old) old.parentNode.removeChild(old);
-      document.querySelectorAll('.page-body').forEach(function(b) { b.contentEditable='true'; });
-    }, 2000);
-  }, 300);
+
+    /* 5. 列印對話框關閉後還原 */
+    document.head.removeChild(styleEl);
+    editables.forEach(function(el) {
+      var bak = el.getAttribute('data-ce-bak');
+      if (bak !== null) { el.setAttribute('contenteditable', bak); el.removeAttribute('data-ce-bak'); }
+      else { el.setAttribute('contenteditable', 'true'); }
+    });
+    if (selPage) selPage.classList.add('selected');
+    if (selImg)  selImg.classList.add('selected');
+    if (selTxt)  selTxt.classList.add('selected');
+  }, 100);
+}
+
+/* ── PDF Export（html2canvas + jsPDF） ── */
+var _pdfLibsLoaded = false;
+
+function _loadPdfLibs(callback) {
+  if (_pdfLibsLoaded) { callback(); return; }
+  /* 先載入 html2canvas，再載入 jsPDF */
+  var s1 = document.createElement('script');
+  s1.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  s1.onload = function() {
+    var s2 = document.createElement('script');
+    s2.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s2.onload = function() { _pdfLibsLoaded = true; callback(); };
+    s2.onerror = function() { alert('jsPDF 載入失敗，請確認網路連線。'); };
+    document.head.appendChild(s2);
+  };
+  s1.onerror = function() { alert('html2canvas 載入失敗，請確認網路連線。'); };
+  document.head.appendChild(s1);
+}
+
+function exportPDF() {
+  _loadPdfLibs(function() { _doExportPDF(); });
+}
+
+function _doExportPDF() {
+  var pages = Array.from(document.querySelectorAll('.a4-page'));
+  if (pages.length === 0) { toast('沒有頁面可匯出'); return; }
+
+  /* 取得文件名稱 */
+  var docName = (document.getElementById('doc-name-input').value || '文件').trim() || '文件';
+
+  /* 暫時隱藏所有編輯控制項，避免截圖時出現 */
+  var hideEls = document.querySelectorAll(
+    '.float-txt-resize,.float-txt-del,.img-resize-handle,.img-delete-btn,.bg-block-handle,.bg-block-del,.page-guide'
+  );
+  hideEls.forEach(function(el) { el.style.visibility = 'hidden'; });
+
+  /* 移除選取外框 */
+  var selectedPage = document.querySelector('.a4-page.selected');
+  if (selectedPage) selectedPage.classList.remove('selected');
+  var selectedImg  = document.querySelector('.float-img-wrap.selected');
+  if (selectedImg)  selectedImg.classList.remove('selected');
+  var selectedTxt  = document.querySelector('.float-txt-wrap.selected');
+  if (selectedTxt)  selectedTxt.classList.remove('selected');
+
+  /* 進度提示 */
+  toast('準備匯出 PDF…');
+
+  var { jsPDF } = window.jspdf;
+  /* A4：210mm × 297mm，jsPDF 單位 mm */
+  var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  var idx = 0;
+  function processNext() {
+    if (idx >= pages.length) {
+      /* 全部完成，還原控制項並下載 */
+      hideEls.forEach(function(el) { el.style.visibility = ''; });
+      if (selectedPage) selectedPage.classList.add('selected');
+      if (selectedImg)  selectedImg.classList.add('selected');
+      if (selectedTxt)  selectedTxt.classList.add('selected');
+      pdf.save(docName + '.pdf');
+      toast('PDF 已下載：' + docName + '.pdf');
+      return;
+    }
+
+    var page = pages[idx];
+    toast('處理第 ' + (idx + 1) + ' / ' + pages.length + ' 頁…');
+
+    /* 計算包含所有絕對定位元素（文字塊、浮動圖片）的實際最大高度
+       offsetHeight 不包含 position:absolute 的子元素，需手動計算 */
+    var pageW = page.offsetWidth;
+    var pageH = page.offsetHeight;
+    page.querySelectorAll('.float-txt-wrap, .float-img-wrap, .bg-block').forEach(function(el) {
+      var top    = parseFloat(el.style.top)    || 0;
+      var height = el.offsetHeight             || parseFloat(el.style.height) || 0;
+      var bottom = top + height;
+      if (bottom > pageH) pageH = bottom + 20; /* 加 20px 緩衝 */
+    });
+
+    html2canvas(page, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+      width:  pageW,
+      height: pageH,
+      onclone: function(clonedDoc, clonedEl) {
+        /* 強制複製的頁面高度與計算後一致，防止 html2canvas 裁切絕對定位元素 */
+        clonedEl.style.minHeight = pageH + 'px';
+        clonedEl.style.height    = pageH + 'px';
+        clonedEl.style.overflow  = 'visible';
+
+        /* 在複製的 DOM 中把所有 contentEditable 關掉，確保文字正確渲染 */
+        clonedEl.querySelectorAll('[contenteditable]').forEach(function(el) {
+          el.removeAttribute('contenteditable');
+        });
+        /* 確保文字塊有正確的 position:absolute 與尺寸，且不被裁切 */
+        clonedEl.querySelectorAll('.float-txt-wrap').forEach(function(w) {
+          w.style.position = 'absolute';
+          w.style.zIndex   = '10';
+          w.style.overflow = 'visible';
+        });
+        /* 確保 .float-txt-body 文字可見（移除 user-select:none 影響） */
+        clonedEl.querySelectorAll('.float-txt-body').forEach(function(b) {
+          b.style.userSelect    = 'text';
+          b.style.pointerEvents = 'auto';
+          b.style.overflow      = 'visible';
+          b.style.whiteSpace    = 'pre-wrap';
+        });
+        /* 隱藏控制項 */
+        clonedEl.querySelectorAll(
+          '.float-txt-resize,.float-txt-del,.img-resize-handle,.img-delete-btn,.bg-block-handle,.bg-block-del,.page-guide'
+        ).forEach(function(el) { el.style.display = 'none'; });
+        /* 移除選取框線 */
+        clonedEl.querySelectorAll('.selected').forEach(function(el) {
+          el.classList.remove('selected');
+          el.style.outline = 'none';
+        });
+      }
+    }).then(function(canvas) {
+      var imgData  = canvas.toDataURL('image/jpeg', 0.92);
+      var pdfPageW = 210;
+      var pdfPageH = Math.round(pageH / pageW * 210);
+
+      if (idx > 0) {
+        pdf.addPage([pdfPageW, pdfPageH], 'portrait');
+      } else {
+        if (Math.abs(pdfPageH - 297) > 2) {
+          pdf.deletePage(1);
+          pdf.addPage([pdfPageW, pdfPageH], 'portrait');
+        }
+      }
+
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfPageW, pdfPageH);
+
+      /* ── 疊加透明連結熱區 ── */
+      var pageRect = page.getBoundingClientRect();
+      /* px → mm 換算比例（以截圖用的 pageW/pageH 為基準） */
+      var scaleX = pdfPageW / pageW;
+      var scaleY = pdfPageH / pageH;
+
+      page.querySelectorAll('a[href]').forEach(function(a) {
+        var href = a.getAttribute('href') || '';
+        if (!href || href.startsWith('#')) return; /* 跳過錨點連結 */
+        var r = a.getBoundingClientRect();
+        /* 連結相對於頁面的位置（px） */
+        var lx = r.left - pageRect.left;
+        var ly = r.top  - pageRect.top;
+        var lw = r.width;
+        var lh = r.height;
+        if (lw <= 0 || lh <= 0) return;
+        /* 換算成 PDF mm 座標 */
+        var mx = lx * scaleX;
+        var my = ly * scaleY;
+        var mw = lw * scaleX;
+        var mh = lh * scaleY;
+        pdf.link(mx, my, mw, mh, { url: href });
+      });
+
+      idx++;
+      processNext();
+    }).catch(function(err) {
+      hideEls.forEach(function(el) { el.style.visibility = ''; });
+      if (selectedPage) selectedPage.classList.add('selected');
+      if (selectedImg)  selectedImg.classList.add('selected');
+      if (selectedTxt)  selectedTxt.classList.add('selected');
+      toast('PDF 匯出失敗：' + err.message);
+    });
+  }
+
+  processNext();
 }
 
 /* ── DOCX Export ── */
@@ -2984,6 +3762,71 @@ function getActivePage() {
 }
 
 /* ── 字距調整 ── */
+/* ── Line Height ── */
+function applyLineHeight(pt) {
+  var val = pt + 'pt';
+  var sel = window.getSelection();
+
+  // 若選取為空且有選取的文字塊，套用到整個文字塊
+  if ((!sel || !sel.rangeCount || sel.isCollapsed) && _lastSelectedFloatTxt && _lastSelectedFloatTxt.isConnected) {
+    var txtBody = _lastSelectedFloatTxt.querySelector('.float-txt-body');
+    var target  = txtBody || _lastSelectedFloatTxt;
+    // 套用到文字塊內所有段落，或直接套用到 txtBody
+    var paras = target.querySelectorAll('p,h1,h2,h3,div,li');
+    if (paras.length > 0) {
+      paras.forEach(function(el) { el.style.lineHeight = val; });
+    } else {
+      target.style.lineHeight = val;
+    }
+    var inp = document.getElementById('line-height-val');
+    if (inp) inp.value = pt;
+    return;
+  }
+
+  // 找出所有受影響的段落節點
+  function getAffectedBlocks() {
+    var blocks = [];
+    if (!sel || !sel.rangeCount) return blocks;
+    var range = sel.getRangeAt(0);
+
+    if (sel.isCollapsed) {
+      var node = range.startContainer;
+      if (node.nodeType === 3) node = node.parentElement;
+      while (node && ['P','H1','H2','H3','DIV','LI'].indexOf(node.tagName) === -1) node = node.parentElement;
+      if (node) blocks.push(node);
+    } else {
+      var ancestor = range.commonAncestorContainer;
+      if (ancestor.nodeType === 3) ancestor = ancestor.parentElement;
+      var container = ancestor.closest
+        ? (ancestor.closest('.page-body') || ancestor.closest('.float-txt-body') || ancestor)
+        : ancestor;
+      container.querySelectorAll('p,h1,h2,h3,div,li').forEach(function(el) {
+        if (range.intersectsNode(el)) blocks.push(el);
+      });
+      if (blocks.length === 0 && ['P','H1','H2','H3','DIV','LI'].indexOf(ancestor.tagName) > -1) {
+        blocks.push(ancestor);
+      }
+    }
+    return blocks;
+  }
+
+  var blocks = getAffectedBlocks();
+  if (blocks.length === 0) return;
+  blocks.forEach(function(el) { el.style.lineHeight = val; });
+
+  var inp = document.getElementById('line-height-val');
+  if (inp) inp.value = pt;
+}
+
+function adjustLineHeight(delta) {
+  var inp = document.getElementById('line-height-val');
+  var cur = parseFloat(inp.value) || 24;
+  var next = Math.max(8, cur + delta);
+  inp.value = next;
+  _restoreSel();
+  applyLineHeight(next);
+}
+
 function adjustLetterSpacing(delta) {
   var inp = document.getElementById('letter-spacing-val');
   var cur = parseFloat(inp.value) || 0;
@@ -3067,10 +3910,10 @@ function insertFloatText(vertical) {
 
   var wrap = document.createElement('div');
   wrap.className = 'float-txt-wrap';
-  wrap.style.left   = '5%';
-  wrap.style.top    = '5%';
-  wrap.style.width  = vertical ? '8%'  : '40%';
-  wrap.style.height = vertical ? '30%' : '12%';
+  wrap.style.left   = '120px';
+  wrap.style.top    = '96px';
+  wrap.style.width  = vertical ? '60px'  : '300px';
+  wrap.style.height = vertical ? '240px' : '80px';
 
   var txtBody = document.createElement('div');
   txtBody.className = 'float-txt-body';
@@ -3099,7 +3942,7 @@ function insertFloatText(vertical) {
   /* 插入後選取文字框內文字（不用 execCommand 避免全選整頁） */
   if (!floatMoveMode) {
     setTimeout(function() {
-      txtBody.focus();
+      txtBody.focus({ preventScroll: true });
       var r = document.createRange();
       r.selectNodeContents(txtBody);
       var s = window.getSelection();
@@ -3126,6 +3969,22 @@ function _bindFloatTxt(wrap) {
     document.querySelectorAll('.float-txt-wrap').forEach(function(w) { w.classList.remove('selected'); });
     wrap.classList.add('selected');
     _lastSelectedFloatTxt = wrap;
+
+    // 若點到的是文字內容區（編輯模式），讓 selectionchange 自然更新 _savedRanges
+    // 若點到的是邊框/移動區，清除 page-body 選取，避免操作套用到主文字區
+    if (floatMoveMode || !(e.target === txtBody || txtBody.contains(e.target))) {
+      var sel = window.getSelection();
+      if (sel) sel.removeAllRanges();
+      _savedRanges = [];
+    }
+  });
+
+  /* 點擊文字內容區：
+     - 移動模式：讓事件冒泡到 wrap 觸發拖曳
+     - 編輯模式：阻止冒泡（防止觸發拖曳導致畫面跳動），讓瀏覽器正常放置游標 */
+  txtBody.addEventListener('mousedown', function(e) {
+    if (floatMoveMode) return;
+    e.stopPropagation();
   });
 
   /* 拖曳：移動模式下整個 wrap 都可拖；編輯模式下只有 wrap 邊框區域可拖 */
@@ -3136,20 +3995,15 @@ function _bindFloatTxt(wrap) {
     if (!floatMoveMode && (e.target === txtBody || txtBody.contains(e.target))) return;
 
     e.preventDefault();
-    var pageEl = wrap.parentNode;
-    var pageW  = pageEl.offsetWidth  || 794;
-    var pageH  = pageEl.offsetHeight || 1123;
     var origL  = parseFloat(wrap.style.left) || 0;
     var origT  = parseFloat(wrap.style.top)  || 0;
     var startX = e.clientX;
     var startY = e.clientY;
-    var moved  = false;
 
     function onMove(ev) {
-      moved = true;
       var scale = currentZoom / 100;
-      wrap.style.left = (origL + (ev.clientX - startX) / scale / pageW * 100) + '%';
-      wrap.style.top  = (origT + (ev.clientY - startY) / scale / pageH * 100) + '%';
+      wrap.style.left = (origL + (ev.clientX - startX) / scale) + 'px';
+      wrap.style.top  = (origT + (ev.clientY - startY) / scale) + 'px';
     }
     function onUp() {
       document.removeEventListener('mousemove', onMove);
@@ -3162,16 +4016,13 @@ function _bindFloatTxt(wrap) {
   /* 縮放（右下角 handle） */
   handle.addEventListener('mousedown', function(e) {
     e.preventDefault(); e.stopPropagation();
-    var pageEl  = wrap.parentNode;
-    var pageW   = pageEl.offsetWidth  || 794;
-    var pageH   = pageEl.offsetHeight || 1123;
     var startX  = e.clientX, startY = e.clientY;
-    var startWP = parseFloat(wrap.style.width)  || (wrap.offsetWidth  / pageW * 100);
-    var startHP = parseFloat(wrap.style.height) || (wrap.offsetHeight / pageH * 100);
+    var startW  = wrap.offsetWidth;
+    var startH  = wrap.offsetHeight;
     function onMove(ev) {
       var scale = currentZoom / 100;
-      wrap.style.width  = Math.max(5, startWP + (ev.clientX - startX) / scale / pageW * 100) + '%';
-      wrap.style.height = Math.max(3, startHP + (ev.clientY - startY) / scale / pageH * 100) + '%';
+      wrap.style.width  = Math.max(40, startW + (ev.clientX - startX) / scale) + 'px';
+      wrap.style.height = Math.max(20, startH + (ev.clientY - startY) / scale) + 'px';
     }
     function onUp() {
       document.removeEventListener('mousemove', onMove);
